@@ -1,8 +1,9 @@
-import { Args, Int, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from './models/user.model';
 import { UserService } from './user.service';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
+import { CreateUserInput } from './inputs/create-user.input';
 
 @Resolver((of) => User)
 export class UserResolver {
@@ -18,5 +19,15 @@ export class UserResolver {
       });
     }
     return user;
+  }
+
+  @Mutation(() => User)
+  async createUser(@Args('createUser') creatUserInput: CreateUserInput) {
+    try {
+      return await this.userService.createUser(creatUserInput);
+    } catch (error) {
+      // TODO: Здесь должен быть логгер для записи ошибки
+      throw new GraphQLError('Не получилось создать пользователя');
+    }
   }
 }

@@ -18,3 +18,12 @@ scalar DateTime
 type Query {
   user(id: Int!): User!
 }
+
+type Mutation {
+  createUser(createUser: CreateUserInput!): User!
+}
+
+input CreateUserInput {
+  email: String!
+  name: String
+}
