@@ -8,8 +8,27 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  email     String   @unique
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique @default(uuid())
+  createdAt DateTime  @default(now())
+  email     String    @unique
+  password  String
+  isDeleted Boolean   @default(false)
   name      String?
+  Session   Session[]
+}
+
+model Session {
+  id               Int      @id @default(autoincrement())
+  uuid             String   @unique @default(uuid())
+  userUuid         String
+  refreshToken     String   @unique
+  refreshExpiresAt DateTime
+  createdAt        DateTime @default(now())
+  lastActiveAt     DateTime @default(now())
+  ipAddress        String?
+  userAgent        String?
+  isActive         Boolean  @default(true)
+
+  user User @relation(fields: [userUuid], references: [uuid])
 }

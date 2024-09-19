@@ -1,9 +1,15 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType({ description: 'user' })
-export class User {
+export abstract class User {
   @Field((type) => ID)
   id: number;
+
+  @Field((type) => String)
+  email: string;
+
+  @Field((type) => String)
+  password: string;
 
   @Field({ nullable: true })
   name?: string;
@@ -11,6 +17,6 @@ export class User {
   @Field()
   createdAt: Date;
 
-  @Field((type) => String)
-  email: string;
+  @Field(() => Boolean, { defaultValue: false })
+  isDeleted: boolean;
 }

@@ -4,6 +4,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriverConfig } from '@nestjs/apollo';
 
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 import graphqlConfig from './common/configs/graphql.config';
 import mainConfig from './common/configs/main.config';
@@ -13,6 +14,7 @@ import mainConfig from './common/configs/main.config';
     ConfigModule.forRoot(mainConfig),
     GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
     UserModule,
+    AuthModule,
   ],
   controllers: [],
 })

@@ -5,9 +5,11 @@
 """user"""
 type User {
   id: ID!
+  email: String!
+  password: String!
   name: String
   createdAt: DateTime!
-  email: String!
+  isDeleted: Boolean!
 }
 
 """
@@ -15,15 +17,29 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type registrationDto {
+  user: User!
+  accessToken: String!
+  refreshToken: String!
+}
+
 type Query {
   user(id: Int!): User!
 }
 
 type Mutation {
   createUser(createUser: CreateUserInput!): User!
+  registration(registration: registrationInput!): registrationDto!
 }
 
 input CreateUserInput {
   email: String!
   name: String
+}
+
+input registrationInput {
+  email: String!
+  name: String
+  password: String!
+  repeatedPassword: String!
 }

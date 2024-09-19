@@ -24,7 +24,7 @@ export class UserResolver {
   @Mutation(() => User)
   async createUser(@Args('createUser') creatUserInput: CreateUserInput) {
     try {
-      return await this.userService.createUser(creatUserInput);
+      // return await this.userService.createUser(creatUserInput);
     } catch (error) {
       // TODO: Здесь должен быть логгер для записи ошибки
       throw new GraphQLError('Не получилось создать пользователя');
