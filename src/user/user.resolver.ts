@@ -10,8 +10,8 @@ export class UserResolver {
   constructor(private userService: UserService) {}
 
   @Query((returns) => User)
-  async user(@Args('id', { type: () => Int }) id: number) {
-    const user = await this.userService.findUserById(id);
+  async user(@Args('uuid', { type: () => String }) uuid: string) {
+    const user = await this.userService.findUserByUuid(uuid);
 
     if (!user) {
       throw new GraphQLError('Мы не нашли пользователя с таким id', {
@@ -19,15 +19,5 @@ export class UserResolver {
       });
     }
     return user;
-  }
-
-  @Mutation(() => User)
-  async createUser(@Args('createUser') creatUserInput: CreateUserInput) {
-    try {
-      // return await this.userService.createUser(creatUserInput);
-    } catch (error) {
-      // TODO: Здесь должен быть логгер для записи ошибки
-      throw new GraphQLError('Не получилось создать пользователя');
-    }
   }
 }
