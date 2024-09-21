@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
-export class registrationInput {
+export class signupLocalInput {
   @Field()
   email: string;
 
@@ -12,5 +12,5 @@ export class registrationInput {
   password: string;
 
   @Field()
-  repeatedPassword: string;
+  repeated_password: string;
 }

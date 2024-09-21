@@ -1,15 +1,14 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { User } from './models/user.model';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { HttpStatus } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
-import { CreateUserInput } from './inputs/create-user.input';
+import { UserDto } from './dtos/user.dto';
 
-@Resolver((of) => User)
+@Resolver((of) => UserDto)
 export class UserResolver {
   constructor(private userService: UserService) {}
 
-  @Query((returns) => User)
+  @Query((returns) => UserDto)
   async user(@Args('uuid', { type: () => String }) uuid: string) {
     const user = await this.userService.findUserByUuid(uuid);
 

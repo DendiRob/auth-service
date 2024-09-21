@@ -3,17 +3,17 @@ import { Field, ObjectType } from '@nestjs/graphql';
 @ObjectType()
 export class createSessionInput {
   @Field()
-  userUuid: string;
+  user_uuid: string;
 
   @Field()
-  refreshToken: string;
+  refresh_token: string;
 
   @Field()
-  refreshExpiresAt: Date;
+  refresh_expires_at: number;
 
   @Field({ nullable: true })
-  ipAddress?: string;
+  ip_address?: string;
 
   @Field({ nullable: true })
-  userAgent?: string;
+  user_agent?: string;
 }

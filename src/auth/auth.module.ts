@@ -2,18 +2,19 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthResolver } from './auth.resolver';
 import { UserService } from 'src/user/user.service';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtModule } from '@nestjs/jwt';
+import { SessionService } from 'src/session/session.service';
+import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 
 @Module({
-  providers: [AuthService, AuthResolver, UserService, PrismaService],
-  imports: [
-    JwtModule.register({
-      secret: process.env.PRIVATE_KEY,
-      signOptions: {
-        expiresIn: '24h',
-      },
-    }),
+  providers: [
+    AuthService,
+    AuthResolver,
+    UserService,
+    SessionService,
+    RefreshTokenStrategy,
+    AccessTokenStrategy,
   ],
+  imports: [JwtModule.register({})],
 })
 export class AuthModule {}

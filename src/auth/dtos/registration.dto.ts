@@ -1,14 +1,14 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { User } from 'src/user/models/user.model';
+import { UserDto } from 'src/user/dtos/user.dto';
 
 @ObjectType()
-export class registrationDto {
+export class signupLocalDto {
   @Field()
-  user: User;
+  user: UserDto;
 
   @Field()
-  accessToken: string;
+  access_token: string;
 
   @Field()
-  refreshToken: string;
+  refresh_token: string;
 }

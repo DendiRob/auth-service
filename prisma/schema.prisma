@@ -8,27 +8,27 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  uuid      String    @unique @default(uuid())
-  createdAt DateTime  @default(now())
-  email     String    @unique
-  password  String
-  isDeleted Boolean   @default(false)
-  name      String?
-  Session   Session[]
+  id         Int       @id @default(autoincrement())
+  uuid       String    @unique @default(uuid())
+  created_at DateTime  @default(now())
+  email      String    @unique
+  password   String
+  is_deleted Boolean   @default(false)
+  name       String?
+  Session    Session[]
 }
 
 model Session {
-  id               Int      @id @default(autoincrement())
-  uuid             String   @unique @default(uuid())
-  userUuid         String
-  refreshToken     String   @unique
-  refreshExpiresAt DateTime
-  createdAt        DateTime @default(now())
-  lastActiveAt     DateTime @default(now())
-  ipAddress        String?
-  userAgent        String?
-  isActive         Boolean  @default(true)
+  id                 Int      @id @default(autoincrement())
+  uuid               String   @unique @default(uuid())
+  user_uuid          String
+  refresh_token      String   @unique
+  refresh_expires_at Int
+  created_at         DateTime @default(now())
+  last_active_at     DateTime @default(now())
+  ip_address         String?
+  user_agent         String?
+  is_active          Boolean  @default(true)
 
-  user User @relation(fields: [userUuid], references: [uuid])
+  user User @relation(fields: [user_uuid], references: [uuid])
 }
