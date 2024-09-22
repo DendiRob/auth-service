@@ -7,7 +7,7 @@ import { TUserAgentAndIp } from 'src/common/decorators/userAgentAndIp.decorator'
 import { CreateUserInput } from 'src/user/inputs/create-user.input';
 import { JwtService } from '@nestjs/jwt';
 import { TTokens } from './types';
-import { signupLocalDto } from './dtos/registration.dto';
+import { authDto } from './dtos/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +31,7 @@ export class AuthService {
           email,
         },
         {
-          expiresIn: 60 * 10,
+          expiresIn: Number(process.env.ACCESS_TOKEN_LIFE),
           secret: process.env.ACCESS_SECRET,
         },
       ),
@@ -41,7 +41,7 @@ export class AuthService {
           email,
         },
         {
-          expiresIn: 60 * 60 * 24 * 7,
+          expiresIn: Number(process.env.REFRESH_TOKEN_LIFE),
           secret: process.env.REFRESH_SECRET,
         },
       ),
@@ -49,10 +49,14 @@ export class AuthService {
     return { access_token: at, refresh_token: rt };
   }
 
+  decodeToken(token: string) {
+    return this.jwtService.decode(token);
+  }
+
   async signupLocalUser(
     userInput: CreateUserInput,
     sessionInfo: TUserAgentAndIp,
-  ): Promise<signupLocalDto> {
+  ): Promise<authDto> {
     const { password, ...restData } = userInput;
 
     const hashedPasssword = await this.hashData(password);
@@ -67,10 +71,13 @@ export class AuthService {
 
       const tokens = await this.getTokens(user.uuid, user.email);
 
+      const decodedRefreshToken = this.decodeToken(tokens.refresh_token);
+      const refreshExpiresAt = new Date(decodedRefreshToken.exp * 1000);
+
       const sessionData = {
         user_uuid: user.uuid,
         refresh_token: tokens.refresh_token,
-        refresh_expires_at: 123123,
+        refresh_expires_at: refreshExpiresAt,
         ...sessionInfo,
       };
 
@@ -79,5 +86,20 @@ export class AuthService {
       return { user, ...tokens };
     });
     return data;
+  }
+
+  async refresh(oldRefreshToken: string, userUuid: string, userEmail: string) {
+    const tokens = await this.getTokens(userUuid, userEmail);
+
+    const decodedRefreshToken = this.decodeToken(tokens.refresh_token);
+
+    const refreshExpiresAt = new Date(decodedRefreshToken.exp * 1000);
+
+    await this.sessionService.updateSession(oldRefreshToken, {
+      refresh_expires_at: refreshExpiresAt,
+      refresh_token: tokens.refresh_token,
+    });
+
+    return tokens;
   }
 }

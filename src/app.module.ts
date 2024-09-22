@@ -10,15 +10,23 @@ import { PrismaModule } from './prisma/prisma.module';
 
 import graphqlConfig from './common/configs/graphql.config';
 import mainConfig from './common/configs/main.config';
+import { APP_GUARD } from '@nestjs/core';
+import { GqlAuthTokenGuard } from './auth/strategies';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(mainConfig),
-    GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
     UserModule,
     AuthModule,
     SessionModule,
     PrismaModule,
+    ConfigModule.forRoot(mainConfig),
+    GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: GqlAuthTokenGuard,
+    },
   ],
   controllers: [],
 })

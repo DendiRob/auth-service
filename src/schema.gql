@@ -16,10 +16,15 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type signupLocalDto {
-  user: UserDto!
+type refreshDto {
   access_token: String!
   refresh_token: String!
+}
+
+type authDto {
+  access_token: String!
+  refresh_token: String!
+  user: UserDto!
 }
 
 type Query {
@@ -27,7 +32,8 @@ type Query {
 }
 
 type Mutation {
-  signupLocal(signupLocal: signupLocalInput!): signupLocalDto!
+  signupLocal(signupLocal: signupLocalInput!): authDto!
+  refresh: refreshDto!
 }
 
 input signupLocalInput {

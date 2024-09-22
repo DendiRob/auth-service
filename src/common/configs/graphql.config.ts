@@ -1,4 +1,4 @@
-import { ApolloDriver } from '@nestjs/apollo';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLError } from 'graphql';
 import { join } from 'path';
 
@@ -11,4 +11,4 @@ export default {
     message: err.message,
     code: err?.extensions?.code || 500,
   }),
-};
+} as ApolloDriverConfig;
