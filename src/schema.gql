@@ -9,6 +9,7 @@ type UserDto {
   name: String
   created_at: DateTime!
   is_deleted: Boolean!
+  is_activated: Boolean!
 }
 
 """

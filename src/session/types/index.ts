@@ -1,6 +1,7 @@
 export type TUpdateSession = {
-  refresh_token: string;
-  refresh_expires_at: Date;
+  refresh_token?: string;
+  refresh_expires_at?: Date;
+  is_active?: boolean;
 };
 
 export type TCreateSession = {

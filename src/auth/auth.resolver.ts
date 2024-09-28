@@ -30,9 +30,9 @@ export class AuthResolver {
   ) {
     const { repeated_password, ...userData } = signupLocal;
 
-    const isUserExist = await this.userService.findUserByEmail(userData.email);
+    const user = await this.userService.findUserByEmail(userData.email);
 
-    if (isUserExist) {
+    if (user) {
       throw new GraphQLError('Пользователь с таким email уже существует', {
         extensions: { code: HttpStatus.BAD_REQUEST },
       });

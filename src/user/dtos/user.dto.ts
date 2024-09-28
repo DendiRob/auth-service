@@ -16,4 +16,7 @@ export class UserDto {
 
   @Field(() => Boolean)
   is_deleted: boolean;
+
+  @Field(() => Boolean)
+  is_activated: boolean;
 }

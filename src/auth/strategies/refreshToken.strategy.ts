@@ -4,6 +4,7 @@ import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { GraphQLError } from 'graphql';
 import { Strategy, ExtractJwt } from 'passport-jwt';
+import { SessionService } from 'src/session/session.service';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
@@ -12,7 +13,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
 ) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromHeader('refresh-token'),
+      jwtFromRequest: ExtractJwt.fromHeader(process.env.REFRESH_TOKEN_HEADER),
       ignoreExpiration: false,
       secretOrKey: process.env.REFRESH_SECRET,
       passReqToCallback: true,
@@ -26,18 +27,40 @@ export class RefreshTokenStrategy extends PassportStrategy(
 
 @Injectable()
 export class GqlRefreshTokenGuard extends AuthGuard('jwt-refresh') {
+  constructor(private sessionService: SessionService) {
+    super();
+  }
+
   getRequest(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
     return ctx.getContext().req;
   }
 
-  handleRequest(err: any, user: any, info: any, context: any, status: any) {
-    if (!user || info) {
+  // TODO: Что-то надо решать с такой реализацией, я не знаЮ, что именно может пойти не так, если риквест будет ассинхронным
+  //@ts-ignore: asdasd
+  async handleRequest(
+    err: any,
+    user: any,
+    info: any,
+    context: ExecutionContext,
+  ) {
+    if (!user) {
+      const req = this.getRequest(context);
+      const refresh = req.headers[process.env.REFRESH_TOKEN_HEADER];
+
+      const session =
+        await this.sessionService.getSessionByRefreshToken(refresh);
+
+      if (session) {
+        await this.sessionService.updateSession(refresh, {
+          is_active: false,
+        });
+      }
+
       throw new GraphQLError('Данная сессия не найдена или закрыта', {
         extensions: { code: HttpStatus.UNAUTHORIZED },
       });
     }
-
-    return super.handleRequest(err, user, info, context, status);
+    return user;
   }
 }

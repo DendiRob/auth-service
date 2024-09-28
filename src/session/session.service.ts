@@ -15,9 +15,9 @@ export class SessionService {
   }
 
   // TODO: Надо сделать триггеры, которые будут записывать последенее обнолвние
-  async updateSession(oldRefreshToken: string, data: TUpdateSession) {
+  async updateSession(refreshToken: string, data: TUpdateSession) {
     return await this.prisma.session.update({
-      where: { refresh_token: oldRefreshToken },
+      where: { refresh_token: refreshToken },
       data,
     });
   }
