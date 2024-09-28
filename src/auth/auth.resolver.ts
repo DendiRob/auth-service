@@ -44,6 +44,7 @@ export class AuthResolver {
       });
     }
     // TODO: тут будет ещё проверка на валидный email адрес
+    // TODO: отправляем ссылку на подтверждение аккаунта
     const createdUserWithTokens = await this.authService.signupLocalUser(
       userData,
       sessionInfo,

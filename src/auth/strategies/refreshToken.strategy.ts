@@ -20,7 +20,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
     });
   }
 
-  async validate(_: Request, payload: any) {
+  validate(_: Request, payload: any) {
     return payload;
   }
 }
