@@ -3,7 +3,7 @@ import { GraphQLError } from 'graphql';
 import { UserService } from 'src/user/user.service';
 import { HttpStatus, UseGuards } from '@nestjs/common';
 import { authDto } from './dtos/auth.dto';
-import { signupLocalInput } from './inputs/signupLocal.input';
+import { signUpLocalInput } from './inputs/signupLocal.input';
 import { AuthService } from './auth.service';
 import {
   TUserAgentAndIp,
@@ -24,11 +24,11 @@ export class AuthResolver {
 
   @PublicResolver()
   @Mutation(() => authDto)
-  async signupLocal(
-    @Args('signupLocal') signupLocal: signupLocalInput,
+  async signUpLocal(
+    @Args('signUpLocal') signUpLocal: signUpLocalInput,
     @UserAgentAndIp() sessionInfo: TUserAgentAndIp,
   ) {
-    const { repeated_password, ...userData } = signupLocal;
+    const { repeated_password, ...userData } = signUpLocal;
 
     const user = await this.userService.findUserByEmail(userData.email);
 
@@ -38,12 +38,6 @@ export class AuthResolver {
       });
     }
 
-    if (userData.password !== repeated_password) {
-      throw new GraphQLError('Введенные пароли не совпадают', {
-        extensions: { code: HttpStatus.BAD_REQUEST },
-      });
-    }
-    // TODO: тут будет ещё проверка на валидный email адрес
     // TODO: отправляем ссылку на подтверждение аккаунта
     const createdUserWithTokens = await this.authService.signupLocalUser(
       userData,

@@ -7,8 +7,12 @@ export default {
   autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
   playground: true,
   debug: true,
-  formatError: (err: GraphQLError) => ({
-    message: err.message,
-    code: err?.extensions?.code || 500,
-  }),
+  formatError: (err: GraphQLError) => {
+    const { errors, code } = err?.extensions;
+    return {
+      message: err.message,
+      code: code || 500,
+      errors,
+    };
+  },
 } as ApolloDriverConfig;

@@ -10,8 +10,9 @@ import { PrismaModule } from './prisma/prisma.module';
 
 import graphqlConfig from './common/configs/graphql.config';
 import mainConfig from './common/configs/main.config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { GqlAuthTokenGuard } from './auth/strategies';
+import { ZodValidation } from './common/pipes/ZodValidation.pipe';
 
 @Module({
   imports: [
@@ -26,6 +27,10 @@ import { GqlAuthTokenGuard } from './auth/strategies';
     {
       provide: APP_GUARD,
       useClass: GqlAuthTokenGuard,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidation,
     },
   ],
   controllers: [],

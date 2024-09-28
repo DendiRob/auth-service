@@ -33,11 +33,11 @@ type Query {
 }
 
 type Mutation {
-  signupLocal(signupLocal: signupLocalInput!): authDto!
+  signUpLocal(signUpLocal: signUpLocalInput!): authDto!
   refresh: refreshDto!
 }
 
-input signupLocalInput {
+input signUpLocalInput {
   email: String!
   name: String
   password: String!
