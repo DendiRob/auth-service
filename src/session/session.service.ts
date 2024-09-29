@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TCreateSession, TUpdateSession } from './types';
-import { Prisma } from '@prisma/client';
+import { TMaybeTranaction } from 'src/prisma/types';
 
 @Injectable()
 export class SessionService {
@@ -9,7 +9,7 @@ export class SessionService {
 
   async createSession(
     sessionInfo: TCreateSession,
-    prisma: Prisma.TransactionClient | PrismaService = this.prisma,
+    prisma: TMaybeTranaction = this.prisma,
   ) {
     return await prisma.session.create({ data: sessionInfo });
   }

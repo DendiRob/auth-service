@@ -8,15 +8,28 @@ datasource db {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  uuid         String    @unique @default(uuid())
-  created_at   DateTime  @default(now())
-  email        String    @unique
-  password     String
-  is_deleted   Boolean   @default(false)
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid())
+  created_at   DateTime @default(now())
+  email        String   @unique
   name         String?
-  is_activated Boolean   @default(false)
-  Session      Session[]
+  password     String
+  is_deleted   Boolean  @default(false)
+  is_activated Boolean  @default(false)
+
+  Session          Session[]
+  UserConfirmation UserConfirmation[]
+}
+
+model UserConfirmation {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid())
+  user_uuid    String
+  expires_at   DateTime
+  created_at   DateTime @default(now())
+  is_confirmed Boolean  @default(false)
+
+  User User @relation(fields: [user_uuid], references: [uuid])
 }
 
 model Session {
@@ -25,10 +38,10 @@ model Session {
   refresh_token      String   @unique
   refresh_expires_at DateTime
   created_at         DateTime @default(now())
-  last_active_at     DateTime @default(now())
+  updated_at         DateTime @default(now())
   ip_address         String?
   user_agent         String?
   is_active          Boolean  @default(true)
 
-  user User @relation(fields: [user_uuid], references: [uuid])
+  User User @relation(fields: [user_uuid], references: [uuid])
 }

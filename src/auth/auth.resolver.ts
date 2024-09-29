@@ -2,18 +2,14 @@ import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { GraphQLError } from 'graphql';
 import { UserService } from 'src/user/user.service';
 import { HttpStatus, UseGuards } from '@nestjs/common';
-import { authDto } from './dtos/auth.dto';
 import { signUpLocalInput } from './inputs/signupLocal.input';
 import { AuthService } from './auth.service';
-import {
-  TUserAgentAndIp,
-  UserAgentAndIp,
-} from 'src/common/decorators/userAgentAndIp.decorator';
 import { SessionService } from 'src/session/session.service';
 import { refreshDto } from './dtos/refresh.dto';
 import { GqlRefreshTokenGuard } from './strategies';
 import { PublicResolver } from 'src/common/decorators/publicResolver.decorator';
 import { MailService } from 'src/mail/mail.service';
+import { signUpLocalDto } from './dtos/signUpLocal.dto';
 
 @Resolver()
 export class AuthResolver {
@@ -25,11 +21,8 @@ export class AuthResolver {
   ) {}
 
   @PublicResolver()
-  @Mutation(() => authDto)
-  async signUpLocal(
-    @Args('signUpLocal') signUpLocal: signUpLocalInput,
-    @UserAgentAndIp() sessionInfo: TUserAgentAndIp,
-  ) {
+  @Mutation(() => signUpLocalDto)
+  async signUpLocal(@Args('signUpLocal') signUpLocal: signUpLocalInput) {
     const { repeated_password, ...userData } = signUpLocal;
 
     const user = await this.userService.findUserByEmail(userData.email);
@@ -40,14 +33,12 @@ export class AuthResolver {
       });
     }
 
-    await this.mailService.sendMsg();
     // TODO: отправляем ссылку на подтверждение аккаунта
-    const createdUserWithTokens = await this.authService.signupLocalUser(
-      userData,
-      sessionInfo,
-    );
+    // await this.mailService.sendMsg();
 
-    return createdUserWithTokens;
+    const createdUserAndLink = await this.authService.signUpLocalUser(userData);
+
+    return createdUserAndLink;
   }
 
   @PublicResolver()

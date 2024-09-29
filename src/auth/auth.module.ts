@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { SessionService } from 'src/session/session.service';
 import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 import { MailModule } from 'src/mail/mail.module';
+import { UserConfirmationService } from 'src/userConfirmation/userConfirmation.service';
 
 @Module({
   providers: [
@@ -15,6 +16,7 @@ import { MailModule } from 'src/mail/mail.module';
     SessionService,
     RefreshTokenStrategy,
     AccessTokenStrategy,
+    UserConfirmationService,
   ],
   imports: [JwtModule.register({}), MailModule],
 })

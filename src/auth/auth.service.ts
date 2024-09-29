@@ -4,10 +4,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
 import { TUserAgentAndIp } from 'src/common/decorators/userAgentAndIp.decorator';
-import { CreateUserInput } from 'src/user/inputs/create-user.input';
+import { CreateUserInput } from 'src/user/inputs/createUser.input';
 import { JwtService } from '@nestjs/jwt';
 import { TTokens } from './types';
 import { authDto } from './dtos/auth.dto';
+import { UserConfirmationService } from 'src/userConfirmation/userConfirmation.service';
+import { signUpLocalDto } from './dtos/signUpLocal.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +18,7 @@ export class AuthService {
     private prisma: PrismaService,
     private sessionService: SessionService,
     private jwtService: JwtService,
+    private userConfirmationService: UserConfirmationService,
   ) {}
 
   async hashData(data: string | Buffer) {
@@ -53,10 +56,7 @@ export class AuthService {
     return this.jwtService.decode(token);
   }
 
-  async signupLocalUser(
-    userInput: CreateUserInput,
-    sessionInfo: TUserAgentAndIp,
-  ): Promise<authDto> {
+  async signUpLocalUser(userInput: CreateUserInput): Promise<signUpLocalDto> {
     const { password, ...restData } = userInput;
 
     const hashedPasssword = await this.hashData(password);
@@ -66,26 +66,30 @@ export class AuthService {
       ...restData,
     };
 
-    const data = await this.prisma.$transaction(async (tx) => {
-      const user = await this.userService.createUser(userData, tx);
+    const user = await this.userService.createUser(userData);
 
-      const tokens = await this.getTokens(user.uuid, user.email);
+    const confirmation = await this.userConfirmationService.createConfirmation(
+      user.uuid,
+    );
 
-      const decodedRefreshToken = this.decodeToken(tokens.refresh_token);
-      const refreshExpiresAt = new Date(decodedRefreshToken.exp * 1000);
+    const confirmationLink = `${process.env.CONFIRMATION_DOMAIN}/${confirmation.user_uuid}/${confirmation.uuid}`;
 
-      const sessionData = {
-        user_uuid: user.uuid,
-        refresh_token: tokens.refresh_token,
-        refresh_expires_at: refreshExpiresAt,
-        ...sessionInfo,
-      };
+    // TODO: может быть нужно всё в один сделать запрос
+    // const tokens = await this.getTokens(user.uuid, user.email);
 
-      await this.sessionService.createSession(sessionData, tx);
+    // const decodedRefreshToken = this.decodeToken(tokens.refresh_token);
+    // const refreshExpiresAt = new Date(decodedRefreshToken.exp * 1000);
 
-      return { user, ...tokens };
-    });
-    return data;
+    // const sessionData = {
+    //   user_uuid: user.uuid,
+    //   refresh_token: tokens.refresh_token,
+    //   refresh_expires_at: refreshExpiresAt,
+    //   ...sessionInfo,
+    // };
+
+    // await this.sessionService.createSession(sessionData, tx);
+
+    return { user, confirmation_link: confirmationLink };
   }
 
   async refresh(oldRefreshToken: string, userUuid: string, userEmail: string) {
