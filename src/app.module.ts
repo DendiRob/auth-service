@@ -23,7 +23,6 @@ import { MailModule } from './mail/mail.module';
     PrismaModule,
     ConfigModule.forRoot(mainConfig),
     GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
-    MailModule,
   ],
   providers: [
     {
