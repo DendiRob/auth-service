@@ -13,6 +13,7 @@ import { SessionService } from 'src/session/session.service';
 import { refreshDto } from './dtos/refresh.dto';
 import { GqlRefreshTokenGuard } from './strategies';
 import { PublicResolver } from 'src/common/decorators/publicResolver.decorator';
+import { MailService } from 'src/mail/mail.service';
 
 @Resolver()
 export class AuthResolver {
@@ -20,6 +21,7 @@ export class AuthResolver {
     private userService: UserService,
     private authService: AuthService,
     private sessionService: SessionService,
+    private mailService: MailService,
   ) {}
 
   @PublicResolver()
@@ -38,6 +40,7 @@ export class AuthResolver {
       });
     }
 
+    await this.mailService.sendMsg();
     // TODO: отправляем ссылку на подтверждение аккаунта
     const createdUserWithTokens = await this.authService.signupLocalUser(
       userData,

@@ -13,6 +13,7 @@ import mainConfig from './common/configs/main.config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { GqlAuthTokenGuard } from './auth/strategies';
 import { ZodValidation } from './common/pipes/ZodValidation.pipe';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ZodValidation } from './common/pipes/ZodValidation.pipe';
     PrismaModule,
     ConfigModule.forRoot(mainConfig),
     GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
+    MailModule,
   ],
   providers: [
     {
