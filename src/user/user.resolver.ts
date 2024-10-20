@@ -1,8 +1,7 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
-import { HttpStatus } from '@nestjs/common';
-import { GraphQLError } from 'graphql';
 import { UserDto } from './dtos/user.dto';
+import { NotFoundException } from '@exceptions/GqlExceptionsShortcuts';
 
 @Resolver((of) => UserDto)
 export class UserResolver {
@@ -13,9 +12,7 @@ export class UserResolver {
     const user = await this.userService.findUserByUuid(uuid);
 
     if (!user) {
-      throw new GraphQLError('Мы не нашли пользователя с таким id', {
-        extensions: { code: HttpStatus.NOT_FOUND },
-      });
+      throw new NotFoundException('Мы не нашли пользователя с таким id');
     }
     return user;
   }

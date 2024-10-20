@@ -2,10 +2,9 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { PublicResolver } from 'src/common/decorators/publicResolver.decorator';
 import { UserConfirmationService } from './userConfirmation.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
-import { GraphQLError } from 'graphql';
-import { HttpStatus } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { MailService } from 'src/mail/mail.service';
+import { BadRequestException } from '@exceptions/GqlExceptionsShortcuts';
 
 @Resolver()
 export class UserConfirmationResolver {
@@ -25,15 +24,11 @@ export class UserConfirmationResolver {
     const user = await this.userService.findUserByUuid(user_uuid);
 
     if (!user) {
-      throw new GraphQLError(`Аккаунт пользователя не найден`, {
-        extensions: { code: HttpStatus.BAD_REQUEST },
-      });
+      throw new BadRequestException('Аккаунт пользователя не найден');
     }
 
     if (user.is_activated) {
-      throw new GraphQLError(`Аккаунт пользователя уже подтвержден`, {
-        extensions: { code: HttpStatus.BAD_REQUEST },
-      });
+      throw new BadRequestException('Аккаунт пользователя уже подтвержден');
     }
 
     const confirmation =
@@ -53,23 +48,16 @@ export class UserConfirmationResolver {
         this.userConfirmationService.isConfirmationValid(lastConfirmation);
 
       if (isLastConfirmationActive) {
-        throw new GraphQLError(
-          `Вы можете запрашивать ссылку для активации аккаунта каждые 10 минут. Пожалуйста, проверьте наличие письма на вашей почте.`,
-          {
-            extensions: { code: HttpStatus.BAD_REQUEST },
-          },
+        throw new BadRequestException(
+          'Вы можете запрашивать ссылку для активации аккаунта каждые 10 минут. Пожалуйста, проверьте наличие письма на вашей почте.',
         );
       } else {
         const confirmation =
           await this.userConfirmationService.createConfirmation(user_uuid);
         // TODO: добавить нормальный запрос на почту
         // await this.mailService.sendMsg();
-
-        throw new GraphQLError(
-          `Данная ссылка не действительна, мы уже отправили вам на почту новую`,
-          {
-            extensions: { code: HttpStatus.BAD_REQUEST },
-          },
+        throw new BadRequestException(
+          'Данная ссылка не действительна, мы уже отправили вам на почту новую',
         );
       }
     }

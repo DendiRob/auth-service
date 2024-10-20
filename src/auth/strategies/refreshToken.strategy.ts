@@ -1,8 +1,8 @@
-import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
+import { UnauthorizedException } from '@exceptions/GqlExceptionsShortcuts';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
-import { GraphQLError } from 'graphql';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { SessionService } from 'src/session/session.service';
 
@@ -57,9 +57,7 @@ export class GqlRefreshTokenGuard extends AuthGuard('jwt-refresh') {
         });
       }
 
-      throw new GraphQLError('Данная сессия не найдена или закрыта', {
-        extensions: { code: HttpStatus.UNAUTHORIZED },
-      });
+      throw new UnauthorizedException('Данная сессия не найдена или закрыта');
     }
     return user;
   }

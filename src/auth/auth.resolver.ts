@@ -1,7 +1,6 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
-import { GraphQLError } from 'graphql';
 import { UserService } from 'src/user/user.service';
-import { HttpStatus, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { signUpLocalInput } from './inputs/signupLocal.input';
 import { AuthService } from './auth.service';
 import { SessionService } from 'src/session/session.service';
@@ -10,6 +9,11 @@ import { GqlRefreshTokenGuard } from './strategies';
 import { PublicResolver } from 'src/common/decorators/publicResolver.decorator';
 import { MailService } from 'src/mail/mail.service';
 import { signUpLocalDto } from './dtos/signUpLocal.dto';
+import {
+  BadRequestException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@exceptions/GqlExceptionsShortcuts';
 
 @Resolver()
 export class AuthResolver {
@@ -28,9 +32,9 @@ export class AuthResolver {
     const user = await this.userService.findUserByEmail(userData.email);
 
     if (user) {
-      throw new GraphQLError('Пользователь с таким email уже существует', {
-        extensions: { code: HttpStatus.BAD_REQUEST },
-      });
+      throw new BadRequestException(
+        'Пользователь с таким email уже существует',
+      );
     }
 
     // TODO: отправляем ссылку на подтверждение аккаунта
@@ -51,17 +55,13 @@ export class AuthResolver {
       await this.sessionService.getSessionByRefreshToken(refreshToken);
 
     if (!session || !session.is_active) {
-      throw new GraphQLError('Данная сессия не найдена или закрыта', {
-        extensions: { code: HttpStatus.UNAUTHORIZED },
-      });
+      throw new UnauthorizedException('Данная сессия не найдена или закрыта');
     }
 
     const user = await this.userService.findUserByUuid(session.user_uuid);
 
     if (!user || user.is_deleted) {
-      throw new GraphQLError('Пользователь не найден', {
-        extensions: { code: HttpStatus.NOT_FOUND },
-      });
+      throw new NotFoundException('Пользователь не найден');
     }
 
     return await this.authService.refresh(

@@ -1,8 +1,8 @@
-import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
+import { UnauthorizedException } from '@exceptions/GqlExceptionsShortcuts';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
-import { GraphQLError } from 'graphql';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { Observable } from 'rxjs';
 import { IS_PUBLIC_KEY } from 'src/common/decorators/publicResolver.decorator';
@@ -51,9 +51,7 @@ export class GqlAuthTokenGuard extends AuthGuard('jwt-access') {
 
   handleRequest(err: any, user: any, info: any, context: any, status: any) {
     if (!user || info) {
-      throw new GraphQLError('Пользователь не авторизован', {
-        extensions: { code: HttpStatus.UNAUTHORIZED },
-      });
+      throw new UnauthorizedException('Пользователь не авторизован');
     }
 
     return super.handleRequest(err, user, info, context, status);
