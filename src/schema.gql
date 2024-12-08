@@ -22,9 +22,18 @@ type refreshDto {
   refresh_token: String!
 }
 
+type UserConfirmationDto {
+  id: Float!
+  uuid: String!
+  user_uuid: String!
+  expires_at: DateTime!
+  created_at: DateTime!
+  is_confirmed: Boolean!
+}
+
 type signUpLocalDto {
   user: UserDto!
-  confirmation_link: String!
+  confirmation: UserConfirmationDto!
 }
 
 type Query {

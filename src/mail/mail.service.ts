@@ -1,17 +1,19 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { TSendAuthConfirmation } from './types';
 
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  async sendMsg() {
+  async sendAuthConfirmation(data: TSendAuthConfirmation) {
+    const confirmationLink = `${process.env.CONFIRMATION_DOMAIN}/${data.user_uuid}/${data.confirmationUuid}`;
+
     await this.mailerService.sendMail({
-      to: 'dendiroblek@gmail.com',
+      to: data.to,
       from: process.env.MAIL_USER,
-      subject: 'Testing',
-      text: 'Test Text',
-      html: '<h1>Hello world</h1>',
+      subject: 'Confirm your account',
+      html: `<h1>${confirmationLink}</h1>`,
     });
   }
 }

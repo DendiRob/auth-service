@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { UserDto } from 'src/user/dtos/user.dto';
+import { UserConfirmationDto } from 'src/userConfirmation/dtos/user-confirmation.dto';
 
 @ObjectType()
 export class signUpLocalDto {
@@ -7,5 +8,5 @@ export class signUpLocalDto {
   user: UserDto;
 
   @Field()
-  confirmation_link: string;
+  confirmation: UserConfirmationDto;
 }

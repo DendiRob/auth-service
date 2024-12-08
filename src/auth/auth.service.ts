@@ -72,9 +72,7 @@ export class AuthService {
       user.uuid,
     );
 
-    const confirmationLink = `${process.env.CONFIRMATION_DOMAIN}/${confirmation.user_uuid}/${confirmation.uuid}`;
-
-    // TODO: может быть нужно всё в один сделать запрос
+    // TODO: Это всё надо в логинку
     // const tokens = await this.getTokens(user.uuid, user.email);
 
     // const decodedRefreshToken = this.decodeToken(tokens.refresh_token);
@@ -89,7 +87,7 @@ export class AuthService {
 
     // await this.sessionService.createSession(sessionData, tx);
 
-    return { user, confirmation_link: confirmationLink };
+    return { user, confirmation };
   }
 
   async refresh(oldRefreshToken: string, userUuid: string, userEmail: string) {

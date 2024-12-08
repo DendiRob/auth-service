@@ -29,20 +29,24 @@ export class AuthResolver {
   async signUpLocal(@Args('signUpLocal') signUpLocal: signUpLocalInput) {
     const { repeated_password, ...userData } = signUpLocal;
 
-    const user = await this.userService.findUserByEmail(userData.email);
+    const isUserExist = await this.userService.findUserByEmail(userData.email);
 
-    if (user) {
+    if (isUserExist) {
       throw new BadRequestException(
         'Пользователь с таким email уже существует',
       );
     }
 
-    // TODO: отправляем ссылку на подтверждение аккаунта
-    // await this.mailService.sendMsg();
+    const { user, confirmation } =
+      await this.authService.signUpLocalUser(userData);
 
-    const createdUserAndLink = await this.authService.signUpLocalUser(userData);
+    await this.mailService.sendAuthConfirmation({
+      to: user.email,
+      user_uuid: user.uuid,
+      confirmationUuid: confirmation.uuid,
+    });
 
-    return createdUserAndLink;
+    return { user, confirmation };
   }
 
   @PublicResolver()

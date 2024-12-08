@@ -54,8 +54,13 @@ export class UserConfirmationResolver {
       } else {
         const confirmation =
           await this.userConfirmationService.createConfirmation(user_uuid);
+
         // TODO: добавить нормальный запрос на почту
-        // await this.mailService.sendMsg();
+        await this.mailService.sendAuthConfirmation({
+          to: user.email,
+          user_uuid: user.uuid,
+          confirmationUuid: confirmation.uuid,
+        });
         throw new BadRequestException(
           'Данная ссылка не действительна, мы уже отправили вам на почту новую',
         );
