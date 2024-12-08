@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
 import { ZodError, ZodSchema } from 'zod';
-import { getZodSchema } from '../decorators/zodSchema.decorator';
+import { getZodSchema } from '../decorators/zod-schema.decorator';
 
 @Injectable()
 export class ZodValidation implements PipeTransform<any> {

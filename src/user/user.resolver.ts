@@ -1,7 +1,7 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { UserDto } from './dtos/user.dto';
-import { NotFoundException } from '@exceptions/GqlExceptionsShortcuts';
+import { NotFoundException } from '@exceptions/gql-exceptions-shortcuts';
 
 @Resolver((of) => UserDto)
 export class UserResolver {

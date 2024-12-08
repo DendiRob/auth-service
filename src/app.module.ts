@@ -12,8 +12,8 @@ import graphqlConfig from './common/configs/graphql.config';
 import mainConfig from './common/configs/main.config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { GqlAuthTokenGuard } from './auth/strategies';
-import { ZodValidation } from './common/pipes/ZodValidation.pipe';
-import { UserConfirmationModule } from './userConfirmation/userConfirmation.module';
+import { ZodValidation } from './common/pipes/zod-validation.pipe';
+import { UserConfirmationModule } from './user-confirmation/userConfirmation.module';
 
 @Module({
   imports: [

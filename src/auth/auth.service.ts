@@ -3,13 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
-import { TUserAgentAndIp } from 'src/common/decorators/userAgentAndIp.decorator';
-import { CreateUserInput } from 'src/user/inputs/createUser.input';
+import { TUserAgentAndIp } from '@decorators/user-agent-and-ip.decorator';
+import { CreateUserInput } from 'src/user/inputs/create-user.input';
 import { JwtService } from '@nestjs/jwt';
 import { TTokens } from './types';
 import { authDto } from './dtos/auth.dto';
-import { UserConfirmationService } from 'src/userConfirmation/userConfirmation.service';
-import { signUpLocalDto } from './dtos/signUpLocal.dto';
+import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
+import { signUpLocalDto } from './dtos/sign-up-local.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +21,7 @@ export class AuthService {
     private userConfirmationService: UserConfirmationService,
   ) {}
 
+  // TODO: нужно вынести работу с токенами в отдельный сервис
   async hashData(data: string | Buffer) {
     const salt = await bcrypt.genSalt();
     return await bcrypt.hash(data, salt);

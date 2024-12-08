@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserInput } from './inputs/createUser.input';
+import { CreateUserInput } from './inputs/create-user.input';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
 import { TMaybeTranaction } from 'src/prisma/types';

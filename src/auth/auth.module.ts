@@ -6,7 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { SessionService } from 'src/session/session.service';
 import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 import { MailModule } from 'src/mail/mail.module';
-import { UserConfirmationService } from 'src/userConfirmation/userConfirmation.service';
+import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
 
 @Module({
   providers: [

@@ -1,11 +1,11 @@
-import { UnauthorizedException } from '@exceptions/GqlExceptionsShortcuts';
+import { UnauthorizedException } from '@exceptions/gql-exceptions-shortcuts';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { Observable } from 'rxjs';
-import { IS_PUBLIC_KEY } from 'src/common/decorators/publicResolver.decorator';
+import { IS_PUBLIC_KEY } from '@decorators/public-resolver.decorator';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(

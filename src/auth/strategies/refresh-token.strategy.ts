@@ -1,4 +1,4 @@
-import { UnauthorizedException } from '@exceptions/GqlExceptionsShortcuts';
+import { UnauthorizedException } from '@exceptions/gql-exceptions-shortcuts';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';

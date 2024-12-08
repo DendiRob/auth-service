@@ -1,19 +1,20 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { UserService } from 'src/user/user.service';
 import { UseGuards } from '@nestjs/common';
-import { signUpLocalInput } from './inputs/signupLocal.input';
+import { signUpLocalInput } from './inputs/sign-up-local.input';
 import { AuthService } from './auth.service';
 import { SessionService } from 'src/session/session.service';
 import { refreshDto } from './dtos/refresh.dto';
 import { GqlRefreshTokenGuard } from './strategies';
-import { PublicResolver } from 'src/common/decorators/publicResolver.decorator';
+import { PublicResolver } from '@decorators/public-resolver.decorator';
 import { MailService } from 'src/mail/mail.service';
-import { signUpLocalDto } from './dtos/signUpLocal.dto';
+import { signUpLocalDto } from './dtos/sign-up-local.dto';
 import {
   BadRequestException,
   NotFoundException,
   UnauthorizedException,
-} from '@exceptions/GqlExceptionsShortcuts';
+} from '@exceptions/gql-exceptions-shortcuts';
+import { signInLocalInput } from './inputs/sign-in-local.input';
 
 @Resolver()
 export class AuthResolver {
@@ -48,6 +49,11 @@ export class AuthResolver {
 
     return { user, confirmation };
   }
+
+  // TODOING
+  @PublicResolver()
+  @Mutation(() => signUpLocalDto)
+  async signInLocal(@Args('signInLocal') signInLocal: signInLocalInput) {}
 
   @PublicResolver()
   @UseGuards(GqlRefreshTokenGuard)

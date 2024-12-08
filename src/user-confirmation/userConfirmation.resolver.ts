@@ -1,10 +1,10 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { PublicResolver } from 'src/common/decorators/publicResolver.decorator';
+import { PublicResolver } from '@decorators/public-resolver.decorator';
 import { UserConfirmationService } from './userConfirmation.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { UserService } from 'src/user/user.service';
 import { MailService } from 'src/mail/mail.service';
-import { BadRequestException } from '@exceptions/GqlExceptionsShortcuts';
+import { BadRequestException } from '@exceptions/gql-exceptions-shortcuts';
 
 @Resolver()
 export class UserConfirmationResolver {

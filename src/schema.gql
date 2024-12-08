@@ -42,6 +42,7 @@ type Query {
 
 type Mutation {
   signUpLocal(signUpLocal: signUpLocalInput!): signUpLocalDto!
+  signInLocal(signInLocal: signInLocalInput!): signUpLocalDto!
   refresh: refreshDto!
   confirmUser(confirmUserInput: ConfirmUserInput!): String!
 }
@@ -51,6 +52,11 @@ input signUpLocalInput {
   name: String
   password: String!
   repeated_password: String!
+}
+
+input signInLocalInput {
+  email: String!
+  password: String!
 }
 
 input ConfirmUserInput {

@@ -1,11 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { ZodSchema } from 'src/common/decorators/zodSchema.decorator';
+import { ZodSchema } from '@decorators/zod-schema.decorator';
 import { z } from 'zod';
 
 const signUpLocalInputSchema = z
   .object({
     email: z
       .string()
+      .min(1, { message: 'Необходимо указать email' })
       .email({ message: 'Некорректный адрес электронной почты' }),
     name: z.string().optional(),
     password: z
