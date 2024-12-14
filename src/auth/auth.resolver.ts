@@ -15,6 +15,10 @@ import {
   UnauthorizedException,
 } from '@exceptions/gql-exceptions-shortcuts';
 import { signInLocalInput } from './inputs/sign-in-local.input';
+import { signInLocalDto } from './dtos/sign-in-local.dto';
+import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
+import { UserAgentAndIp } from '@decorators/user-agent-and-ip.decorator';
+import { TokenService } from 'src/token/token.service';
 
 @Resolver()
 export class AuthResolver {
@@ -23,6 +27,8 @@ export class AuthResolver {
     private authService: AuthService,
     private sessionService: SessionService,
     private mailService: MailService,
+    private userConfirmationService: UserConfirmationService,
+    private tokenService: TokenService,
   ) {}
 
   @PublicResolver()
@@ -50,10 +56,44 @@ export class AuthResolver {
     return { user, confirmation };
   }
 
-  // TODOING
   @PublicResolver()
-  @Mutation(() => signUpLocalDto)
-  async signInLocal(@Args('signInLocal') signInLocal: signInLocalInput) {}
+  @Mutation(() => signInLocalDto)
+  async signInLocal(@Args('signInLocal') signInLocal: signInLocalInput) {
+    const { email, password } = signInLocal;
+
+    const user = await this.userService.findUserByEmail(email);
+
+    if (!user) {
+      throw new NotFoundException('Пользователь с таким email не существует');
+    }
+
+    const isPasswordValid = this.authService.compareUserPassword(
+      password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Неправильный пароль');
+    }
+
+    if (!user.is_activated) {
+      return await this.userConfirmationService.userConfirmationIsNotValid(
+        user,
+      );
+    }
+
+    // TODO: после того как добавим еще методы авторизации, возможно это надо вынести в отдельную функцию сервиса
+    const tokens = await this.tokenService.getTokens(user.uuid, user.email);
+
+    const sessionData = {
+      user_uuid: user.uuid,
+      refresh_token: tokens.refresh_token,
+      // ip_address: ,
+      // user_agent: string,
+    };
+
+    await this.sessionService.createSession(sessionData);
+  }
 
   @PublicResolver()
   @UseGuards(GqlRefreshTokenGuard)

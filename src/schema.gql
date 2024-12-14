@@ -36,13 +36,19 @@ type signUpLocalDto {
   confirmation: UserConfirmationDto!
 }
 
+type signInLocalDto {
+  access_token: String!
+  refresh_token: String!
+  user: UserDto!
+}
+
 type Query {
   user(uuid: String!): UserDto!
 }
 
 type Mutation {
   signUpLocal(signUpLocal: signUpLocalInput!): signUpLocalDto!
-  signInLocal(signInLocal: signInLocalInput!): signUpLocalDto!
+  signInLocal(signInLocal: signInLocalInput!): signInLocalDto!
   refresh: refreshDto!
   confirmUser(confirmUserInput: ConfirmUserInput!): String!
 }

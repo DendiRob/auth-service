@@ -3,13 +3,16 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { TMaybeTranaction } from 'src/prisma/types';
 import { UserService } from 'src/user/user.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
-import type { UserConfirmation } from '@prisma/client';
+import { MailService } from 'src/mail/mail.service';
+import type { User, UserConfirmation } from '@prisma/client';
+import { BadRequestException } from '@exceptions/gql-exceptions-shortcuts';
 
 @Injectable()
 export class UserConfirmationService {
   constructor(
     private prisma: PrismaService,
     private userService: UserService,
+    private mailService: MailService,
   ) {}
 
   async createConfirmation(
@@ -26,6 +29,20 @@ export class UserConfirmationService {
         expires_at: expirationTime,
       },
     });
+  }
+
+  async createConfirmationAndSendEmail(user: User) {
+    const { email, uuid } = user;
+    const confirmation = await this.createConfirmation(uuid);
+
+    // TODO: добавить нормальный запрос на почту
+    await this.mailService.sendAuthConfirmation({
+      to: email,
+      user_uuid: uuid,
+      confirmationUuid: confirmation.uuid,
+    });
+
+    return confirmation;
   }
 
   async confirmUser(data: ConfirmUserInput) {
@@ -53,13 +70,36 @@ export class UserConfirmationService {
     });
   }
 
-  async findLastConfirmation() {
+  async findLastUserConfirmation(userUuid: string) {
     return await this.prisma.userConfirmation.findFirst({
+      where: {
+        user_uuid: userUuid,
+      },
       orderBy: {
         created_at: 'desc',
       },
     });
   }
+
+  async userConfirmationIsNotValid(user: User) {
+    const { uuid } = user;
+    const lastConfirmation = await this.findLastUserConfirmation(uuid);
+
+    const isLastConfirmationActive = this.isConfirmationValid(lastConfirmation);
+
+    if (isLastConfirmationActive) {
+      throw new BadRequestException(
+        'Вы можете запрашивать ссылку для активации аккаунта каждые 10 минут. Пожалуйста, проверьте наличие письма на вашей почте.',
+      );
+    } else {
+      await this.createConfirmationAndSendEmail(user);
+
+      throw new BadRequestException(
+        'Данная ссылка не действительна, мы уже отправили вам на почту новую',
+      );
+    }
+  }
+
   isConfirmationValid(confirmation: null | UserConfirmation) {
     return confirmation && new Date() < new Date(confirmation?.expires_at);
   }

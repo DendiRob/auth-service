@@ -3,7 +3,6 @@ import { PublicResolver } from '@decorators/public-resolver.decorator';
 import { UserConfirmationService } from './userConfirmation.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { UserService } from 'src/user/user.service';
-import { MailService } from 'src/mail/mail.service';
 import { BadRequestException } from '@exceptions/gql-exceptions-shortcuts';
 
 @Resolver()
@@ -11,7 +10,6 @@ export class UserConfirmationResolver {
   constructor(
     private userConfirmationService: UserConfirmationService,
     private userService: UserService,
-    private mailService: MailService,
   ) {}
 
   @PublicResolver()
@@ -41,30 +39,7 @@ export class UserConfirmationResolver {
       await this.userConfirmationService.confirmUser(confirmUserInput);
       return 'Аккаунт успешно подтвержден';
     } else {
-      const lastConfirmation =
-        await this.userConfirmationService.findLastConfirmation();
-
-      const isLastConfirmationActive =
-        this.userConfirmationService.isConfirmationValid(lastConfirmation);
-
-      if (isLastConfirmationActive) {
-        throw new BadRequestException(
-          'Вы можете запрашивать ссылку для активации аккаунта каждые 10 минут. Пожалуйста, проверьте наличие письма на вашей почте.',
-        );
-      } else {
-        const confirmation =
-          await this.userConfirmationService.createConfirmation(user_uuid);
-
-        // TODO: добавить нормальный запрос на почту
-        await this.mailService.sendAuthConfirmation({
-          to: user.email,
-          user_uuid: user.uuid,
-          confirmationUuid: confirmation.uuid,
-        });
-        throw new BadRequestException(
-          'Данная ссылка не действительна, мы уже отправили вам на почту новую',
-        );
-      }
+      await this.userConfirmationService.userConfirmationIsNotValid(user);
     }
   }
 }
