@@ -93,9 +93,8 @@ export class UserConfirmationService {
       );
     } else {
       await this.createConfirmationAndSendEmail(user);
-
       throw new BadRequestException(
-        'Данная ссылка не действительна, мы уже отправили вам на почту новую',
+        'Аккаунт не подтвержден, мы отправили вам ссылку активации на почту',
       );
     }
   }

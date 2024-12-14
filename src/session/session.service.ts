@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TCreateSession, TUpdateSession } from './types';
 import { TMaybeTranaction } from 'src/prisma/types';
-import { AuthService } from 'src/auth/auth.service';
 import { TokenService } from 'src/token/token.service';
 
 @Injectable()

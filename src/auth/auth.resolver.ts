@@ -74,7 +74,7 @@ export class AuthResolver {
       throw new NotFoundException('Пользователь с таким email не существует');
     }
 
-    const isPasswordValid = this.authService.compareUserPassword(
+    const isPasswordValid = await this.authService.compareUserPassword(
       password,
       user.password,
     );
@@ -84,9 +84,21 @@ export class AuthResolver {
     }
 
     if (!user.is_activated) {
-      return await this.userConfirmationService.userConfirmationIsNotValid(
-        user,
-      );
+      const confirmation =
+        await this.userConfirmationService.findLastUserConfirmation(user.uuid);
+
+      const isConfirmationValid =
+        this.userConfirmationService.isConfirmationValid(confirmation);
+
+      if (isConfirmationValid) {
+        throw new UnauthorizedException(
+          'Ваш аккаунт не подтвержден, мы отправили вам письмо на почту',
+        );
+      } else {
+        return await this.userConfirmationService.userConfirmationIsNotValid(
+          user,
+        );
+      }
     }
 
     // TODO: после того как добавим еще методы авторизации, возможно это надо вынести в отдельную функцию сервиса

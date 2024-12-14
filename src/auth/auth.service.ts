@@ -22,8 +22,8 @@ export class AuthService {
     return await bcrypt.hash(data, salt);
   }
 
-  compareUserPassword(password: string, hashedPassword: string) {
-    return bcrypt.compare(password, hashedPassword);
+  async compareUserPassword(password: string, hashedPassword: string) {
+    return await bcrypt.compare(password, hashedPassword);
   }
 
   // TODO: мне кажется, что тут не должен быть инпут в сервисе, просто обычный тип
