@@ -17,7 +17,10 @@ import {
 import { signInLocalInput } from './inputs/sign-in-local.input';
 import { signInLocalDto } from './dtos/sign-in-local.dto';
 import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
-import { UserAgentAndIp } from '@decorators/user-agent-and-ip.decorator';
+import {
+  TUserAgentAndIp,
+  UserAgentAndIp,
+} from '@decorators/user-agent-and-ip.decorator';
 import { TokenService } from 'src/token/token.service';
 
 @Resolver()
@@ -58,8 +61,12 @@ export class AuthResolver {
 
   @PublicResolver()
   @Mutation(() => signInLocalDto)
-  async signInLocal(@Args('signInLocal') signInLocal: signInLocalInput) {
+  async signInLocal(
+    @Args('signInLocal') signInLocal: signInLocalInput,
+    @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
+  ) {
     const { email, password } = signInLocal;
+    const { ip_address, user_agent } = userAgentAndIp;
 
     const user = await this.userService.findUserByEmail(email);
 
@@ -88,11 +95,17 @@ export class AuthResolver {
     const sessionData = {
       user_uuid: user.uuid,
       refresh_token: tokens.refresh_token,
-      // ip_address: ,
-      // user_agent: string,
+      ip_address,
+      user_agent,
     };
 
     await this.sessionService.createSession(sessionData);
+
+    return {
+      user,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+    };
   }
 
   @PublicResolver()

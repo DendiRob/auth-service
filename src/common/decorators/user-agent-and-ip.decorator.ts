@@ -1,7 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
-export type TUserAgentAndIp = { ip_address: string; user_agent: string };
+export type TUserAgentAndIp = {
+  ip_address: string | undefined;
+  user_agent: string | undefined;
+};
 
 export const UserAgentAndIp = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): TUserAgentAndIp => {
