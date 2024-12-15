@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TMaybeTranaction } from 'src/prisma/types';
 import { UserService } from 'src/user/user.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { MailService } from 'src/mail/mail.service';
-import { BadRequestException } from '@exceptions/gql-exceptions-shortcuts';
 import ERRORS from './constants/errors';
 
 import type { User, UserConfirmation } from '@prisma/client';
+import { ServiceError } from 'src/common/utils/service-error-handler';
 
 @Injectable()
 export class UserConfirmationService {
@@ -86,15 +86,18 @@ export class UserConfirmationService {
   async checkAndHandleUserConfirmation(
     user: User,
     confirmation: UserConfirmation,
-  ) {
+  ): Promise<ServiceError> {
     const isConfirmationActive = this.isConfirmationExpired(confirmation);
 
     if (isConfirmationActive) {
-      throw new BadRequestException(ERRORS.ACTIVE_CONFIRMATION);
+      return new ServiceError(
+        HttpStatus.BAD_REQUEST,
+        ERRORS.ACTIVE_CONFIRMATION,
+      );
     }
     await this.createConfirmationAndSendEmail(user);
 
-    throw new BadRequestException(ERRORS.CONFIRMATION_SENT);
+    return new ServiceError(HttpStatus.BAD_REQUEST, ERRORS.CONFIRMATION_SENT);
   }
 
   isConfirmationExpired(confirmation: null | UserConfirmation) {

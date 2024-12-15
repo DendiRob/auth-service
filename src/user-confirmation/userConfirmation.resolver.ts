@@ -1,10 +1,11 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { HttpStatus } from '@nestjs/common';
 import { PublicResolver } from '@decorators/public-resolver.decorator';
 import { UserConfirmationService } from './userConfirmation.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { UserService } from 'src/user/user.service';
-import { BadRequestException } from '@exceptions/gql-exceptions-shortcuts';
 import USER_ERRORS from 'src/user/constants/errors';
+import { throwException } from 'src/common/utils/service-error-handler';
 
 @Resolver()
 export class UserConfirmationResolver {
@@ -23,11 +24,11 @@ export class UserConfirmationResolver {
     const user = await this.userService.findUserByUuid(user_uuid);
 
     if (!user) {
-      throw new BadRequestException(USER_ERRORS.USER_NOT_FOUND);
+      throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
     }
 
     if (user.is_activated) {
-      throw new BadRequestException(USER_ERRORS.USER_IS_ACTIVATED);
+      throwException(HttpStatus.BAD_REQUEST, USER_ERRORS.USER_NOT_FOUND);
     }
 
     const confirmation =
@@ -41,10 +42,12 @@ export class UserConfirmationResolver {
 
       return 'Аккаунт успешно подтвержден';
     } else {
-      await this.userConfirmationService.checkAndHandleUserConfirmation(
-        user,
-        confirmation,
-      );
+      const result =
+        await this.userConfirmationService.checkAndHandleUserConfirmation(
+          user,
+          confirmation,
+        );
+      throwException(result.code, result.msg);
     }
   }
 }

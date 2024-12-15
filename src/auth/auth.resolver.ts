@@ -1,6 +1,6 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { UserService } from 'src/user/user.service';
-import { UseGuards } from '@nestjs/common';
+import { HttpStatus, UseGuards } from '@nestjs/common';
 import { signUpLocalInput } from './inputs/sign-up-local.input';
 import { AuthService } from './auth.service';
 import { SessionService } from 'src/session/session.service';
@@ -9,11 +9,6 @@ import { GqlRefreshTokenGuard } from './strategies';
 import { PublicResolver } from '@decorators/public-resolver.decorator';
 import { MailService } from 'src/mail/mail.service';
 import { signUpLocalDto } from './dtos/sign-up-local.dto';
-import {
-  BadRequestException,
-  NotFoundException,
-  UnauthorizedException,
-} from '@exceptions/gql-exceptions-shortcuts';
 import { signInLocalInput } from './inputs/sign-in-local.input';
 import { signInLocalDto } from './dtos/sign-in-local.dto';
 import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
@@ -27,6 +22,8 @@ import { compareHashedData } from 'src/common/utils/bcrypt';
 import USER_ERRORS from 'src/user/constants/errors';
 import USER_CONFIRMATION_ERRORS from 'src/user-confirmation/constants/errors';
 import AUTH_ERRORS from './constants/errors';
+import { throwException } from 'src/common/utils/service-error-handler';
+import SESSION_ERRORS from 'src/session/constants/errors';
 
 @Resolver()
 export class AuthResolver {
@@ -49,13 +46,16 @@ export class AuthResolver {
       await this.sessionService.getSessionByRefreshToken(refreshToken);
 
     if (!session || !session.is_active) {
-      throw new UnauthorizedException('Данная сессия не найдена или закрыта');
+      throwException(
+        HttpStatus.UNAUTHORIZED,
+        SESSION_ERRORS.USER_SESSION_NOT_FOUND_OR_CLOSED,
+      );
     }
 
     const user = await this.userService.findUserByUuid(session.user_uuid);
 
     if (!user || user.is_deleted) {
-      throw new NotFoundException(USER_ERRORS.USER_NOT_FOUND);
+      throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
     }
 
     return await this.authService.refresh(
@@ -73,7 +73,7 @@ export class AuthResolver {
     const isUserExist = await this.userService.findUserByEmail(userData.email);
 
     if (isUserExist) {
-      throw new BadRequestException(AUTH_ERRORS.USER_IS_REGISTRATED);
+      throwException(HttpStatus.BAD_REQUEST, AUTH_ERRORS.USER_IS_REGISTRATED);
     }
 
     const { user, confirmation } =
@@ -100,13 +100,13 @@ export class AuthResolver {
     const user = await this.userService.findUserByEmail(email);
 
     if (!user) {
-      throw new NotFoundException(USER_ERRORS.USER_NOT_FOUND);
+      throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
     }
 
     const isPasswordValid = await compareHashedData(password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException(AUTH_ERRORS.INCORRECT_PASSWORD);
+      throwException(HttpStatus.UNAUTHORIZED, AUTH_ERRORS.INCORRECT_PASSWORD);
     }
 
     if (!user.is_activated) {
@@ -117,14 +117,18 @@ export class AuthResolver {
         this.userConfirmationService.isConfirmationExpired(lastConfirmation);
 
       if (isConfirmationValid) {
-        throw new UnauthorizedException(
+        throwException(
+          HttpStatus.UNAUTHORIZED,
           USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
         );
       } else {
-        return await this.userConfirmationService.checkAndHandleUserConfirmation(
-          user,
-          lastConfirmation,
-        );
+        const result =
+          await this.userConfirmationService.checkAndHandleUserConfirmation(
+            user,
+            lastConfirmation,
+          );
+
+        throwException(result.code, result.msg);
       }
     }
 
@@ -158,7 +162,7 @@ export class AuthResolver {
     const user = await this.userService.findUserByEmail(email);
 
     if (!user) {
-      throw new NotFoundException(USER_ERRORS.USER_NOT_FOUND);
+      throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
     }
 
     // TODO: бойлерплейт(повторяется проверка на кативный аккаунт) ,возможно нужно вынести все в отдельную функцию
@@ -170,14 +174,17 @@ export class AuthResolver {
         this.userConfirmationService.isConfirmationExpired(lastConfirmation);
 
       if (isConfirmationValid) {
-        throw new UnauthorizedException(
+        throwException(
+          HttpStatus.UNAUTHORIZED,
           USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
         );
       } else {
-        return await this.userConfirmationService.checkAndHandleUserConfirmation(
-          user,
-          lastConfirmation,
-        );
+        const result =
+          await this.userConfirmationService.checkAndHandleUserConfirmation(
+            user,
+            lastConfirmation,
+          );
+        throwException(result.code, result.msg);
       }
     }
 

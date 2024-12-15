@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
 
-abstract class GqlExceptionPattern extends GraphQLError {
+export abstract class GqlExceptionPattern extends GraphQLError {
   constructor(msg: string, code: number) {
     super(msg, { extensions: { code } });
   }
@@ -22,5 +22,17 @@ export class BadRequestException extends GqlExceptionPattern {
 export class UnauthorizedException extends GqlExceptionPattern {
   constructor(msg: string = 'Вы не авторизованы') {
     super(msg, HttpStatus.UNAUTHORIZED);
+  }
+}
+
+export class ForbiddenException extends GqlExceptionPattern {
+  constructor(msg: string = 'Вы не авторизованы') {
+    super(msg, HttpStatus.FORBIDDEN);
+  }
+}
+
+export class HttpException extends GqlExceptionPattern {
+  constructor(msg: string = 'Вы не авторизованы') {
+    super(msg, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
