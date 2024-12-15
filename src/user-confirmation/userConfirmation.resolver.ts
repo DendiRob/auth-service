@@ -36,17 +36,10 @@ export class UserConfirmationResolver {
       await this.userConfirmationService.findConfiramtion(confirmation_uuid);
 
     if (!confirmation) {
-      const lastUserConfirmation =
-        await this.userConfirmationService.findLastUserConfirmation(user_uuid);
-      if (lastUserConfirmation) {
-        const result =
-          await this.userConfirmationService.checkAndHandleUserConfirmation(
-            user,
-            lastUserConfirmation,
-          );
-
-        throwException(result.code, result.msg);
-      }
+      return throwException(
+        HttpStatus.NOT_FOUND,
+        USER_CONFIRMATION_ERRORS.USER_CONFIRMATION_NOT_FOUND,
+      );
     }
 
     const isConfirmationExpired =
