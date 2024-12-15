@@ -4,6 +4,7 @@ import { UserConfirmationService } from './userConfirmation.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { UserService } from 'src/user/user.service';
 import { BadRequestException } from '@exceptions/gql-exceptions-shortcuts';
+import USER_ERRORS from 'src/user/constants/errors';
 
 @Resolver()
 export class UserConfirmationResolver {
@@ -22,24 +23,28 @@ export class UserConfirmationResolver {
     const user = await this.userService.findUserByUuid(user_uuid);
 
     if (!user) {
-      throw new BadRequestException('Аккаунт пользователя не найден');
+      throw new BadRequestException(USER_ERRORS.USER_NOT_FOUND);
     }
 
     if (user.is_activated) {
-      throw new BadRequestException('Аккаунт пользователя уже подтвержден');
+      throw new BadRequestException(USER_ERRORS.USER_IS_ACTIVATED);
     }
 
     const confirmation =
       await this.userConfirmationService.findConfiramtion(confirmation_uuid);
 
     const isConfirmationValid =
-      this.userConfirmationService.isConfirmationValid(confirmation);
+      this.userConfirmationService.isConfirmationExpired(confirmation);
 
     if (isConfirmationValid) {
       await this.userConfirmationService.confirmUser(confirmUserInput);
+
       return 'Аккаунт успешно подтвержден';
     } else {
-      await this.userConfirmationService.userConfirmationIsNotValid(user);
+      await this.userConfirmationService.checkAndHandleUserConfirmation(
+        user,
+        confirmation,
+      );
     }
   }
 }

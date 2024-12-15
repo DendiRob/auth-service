@@ -4,8 +4,10 @@ import { TMaybeTranaction } from 'src/prisma/types';
 import { UserService } from 'src/user/user.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { MailService } from 'src/mail/mail.service';
-import type { User, UserConfirmation } from '@prisma/client';
 import { BadRequestException } from '@exceptions/gql-exceptions-shortcuts';
+import ERRORS from './constants/errors';
+
+import type { User, UserConfirmation } from '@prisma/client';
 
 @Injectable()
 export class UserConfirmationService {
@@ -81,25 +83,24 @@ export class UserConfirmationService {
     });
   }
 
-  async userConfirmationIsNotValid(user: User) {
-    const { uuid } = user;
-    const lastConfirmation = await this.findLastUserConfirmation(uuid);
+  async checkAndHandleUserConfirmation(
+    user: User,
+    confirmation: UserConfirmation,
+  ) {
+    const isConfirmationActive = this.isConfirmationExpired(confirmation);
 
-    const isLastConfirmationActive = this.isConfirmationValid(lastConfirmation);
-
-    if (isLastConfirmationActive) {
-      throw new BadRequestException(
-        'Вы можете запрашивать ссылку для активации аккаунта каждые 10 минут. Пожалуйста, проверьте наличие письма на вашей почте.',
-      );
-    } else {
-      await this.createConfirmationAndSendEmail(user);
-      throw new BadRequestException(
-        'Аккаунт не подтвержден, мы отправили вам ссылку активации на почту',
-      );
+    if (isConfirmationActive) {
+      throw new BadRequestException(ERRORS.ACTIVE_CONFIRMATION);
     }
+    await this.createConfirmationAndSendEmail(user);
+
+    throw new BadRequestException(ERRORS.CONFIRMATION_SENT);
   }
 
-  isConfirmationValid(confirmation: null | UserConfirmation) {
-    return confirmation && new Date() < new Date(confirmation?.expires_at);
+  isConfirmationExpired(confirmation: null | UserConfirmation) {
+    const now = new Date();
+    const expirationTime = new Date(confirmation?.expires_at);
+
+    return confirmation && now < expirationTime;
   }
 }

@@ -1,4 +1,3 @@
-import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
@@ -6,6 +5,8 @@ import { CreateUserInput } from 'src/user/inputs/create-user.input';
 import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
 import { signUpLocalDto } from './dtos/sign-up-local.dto';
 import { TokenService } from 'src/token/token.service';
+import { hashData } from 'src/common/utils/bcrypt';
+import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
 
 @Injectable()
 export class AuthService {
@@ -14,36 +15,8 @@ export class AuthService {
     private sessionService: SessionService,
     private userConfirmationService: UserConfirmationService,
     private tokenService: TokenService,
+    private forgottenPasswordService: ForgottenPasswordService,
   ) {}
-
-  // TODO: нужно вынести работу с токенами в отдельный сервис
-  async hashData(data: string | Buffer) {
-    const salt = await bcrypt.genSalt();
-    return await bcrypt.hash(data, salt);
-  }
-
-  async compareUserPassword(password: string, hashedPassword: string) {
-    return await bcrypt.compare(password, hashedPassword);
-  }
-
-  // TODO: мне кажется, что тут не должен быть инпут в сервисе, просто обычный тип
-  async signUpLocalUser(userInput: CreateUserInput): Promise<signUpLocalDto> {
-    const { password, ...restData } = userInput;
-
-    const hashedPasssword = await this.hashData(password);
-
-    const userData = {
-      password: hashedPasssword,
-      ...restData,
-    };
-
-    const user = await this.userService.createUser(userData);
-
-    const confirmation =
-      await this.userConfirmationService.createConfirmationAndSendEmail(user);
-
-    return { user, confirmation };
-  }
 
   async refresh(oldRefreshToken: string, userUuid: string, userEmail: string) {
     const tokens = await this.tokenService.getTokens(userUuid, userEmail);
@@ -60,5 +33,24 @@ export class AuthService {
     });
 
     return tokens;
+  }
+
+  // TODO: мне кажется, что тут не должен быть инпут в сервисе, просто обычный тип
+  async signUpLocalUser(userInput: CreateUserInput): Promise<signUpLocalDto> {
+    const { password, ...restData } = userInput;
+
+    const hashedPasssword = await hashData(password);
+
+    const userData = {
+      password: hashedPasssword,
+      ...restData,
+    };
+
+    const user = await this.userService.createUser(userData);
+
+    const confirmation =
+      await this.userConfirmationService.createConfirmationAndSendEmail(user);
+
+    return { user, confirmation };
   }
 }

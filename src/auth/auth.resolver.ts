@@ -23,6 +23,10 @@ import {
 } from '@decorators/user-agent-and-ip.decorator';
 import { TokenService } from 'src/token/token.service';
 import { forgotPasswordInput } from './inputs/forgot-password.input';
+import { compareHashedData } from 'src/common/utils/bcrypt';
+import USER_ERRORS from 'src/user/constants/errors';
+import USER_CONFIRMATION_ERRORS from 'src/user-confirmation/constants/errors';
+import AUTH_ERRORS from './constants/errors';
 
 @Resolver()
 export class AuthResolver {
@@ -51,7 +55,7 @@ export class AuthResolver {
     const user = await this.userService.findUserByUuid(session.user_uuid);
 
     if (!user || user.is_deleted) {
-      throw new NotFoundException('Пользователь не найден');
+      throw new NotFoundException(USER_ERRORS.USER_NOT_FOUND);
     }
 
     return await this.authService.refresh(
@@ -69,9 +73,7 @@ export class AuthResolver {
     const isUserExist = await this.userService.findUserByEmail(userData.email);
 
     if (isUserExist) {
-      throw new BadRequestException(
-        'Пользователь с таким email уже существует',
-      );
+      throw new BadRequestException(AUTH_ERRORS.USER_IS_REGISTRATED);
     }
 
     const { user, confirmation } =
@@ -98,32 +100,30 @@ export class AuthResolver {
     const user = await this.userService.findUserByEmail(email);
 
     if (!user) {
-      throw new NotFoundException('Пользователь с таким email не существует');
+      throw new NotFoundException(USER_ERRORS.USER_NOT_FOUND);
     }
 
-    const isPasswordValid = await this.authService.compareUserPassword(
-      password,
-      user.password,
-    );
+    const isPasswordValid = await compareHashedData(password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Неправильный пароль');
+      throw new UnauthorizedException(AUTH_ERRORS.INCORRECT_PASSWORD);
     }
 
     if (!user.is_activated) {
-      const confirmation =
+      const lastConfirmation =
         await this.userConfirmationService.findLastUserConfirmation(user.uuid);
 
       const isConfirmationValid =
-        this.userConfirmationService.isConfirmationValid(confirmation);
+        this.userConfirmationService.isConfirmationExpired(lastConfirmation);
 
       if (isConfirmationValid) {
         throw new UnauthorizedException(
-          'Ваш аккаунт не подтвержден, мы отправили вам письмо на почту',
+          USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
         );
       } else {
-        return await this.userConfirmationService.userConfirmationIsNotValid(
+        return await this.userConfirmationService.checkAndHandleUserConfirmation(
           user,
+          lastConfirmation,
         );
       }
     }
@@ -158,23 +158,25 @@ export class AuthResolver {
     const user = await this.userService.findUserByEmail(email);
 
     if (!user) {
-      throw new NotFoundException('Пользователь с таким email не существует');
+      throw new NotFoundException(USER_ERRORS.USER_NOT_FOUND);
     }
-    // TODO: бойлерплейт ,возможно нужно вынести все в отдельную функцию
+
+    // TODO: бойлерплейт(повторяется проверка на кативный аккаунт) ,возможно нужно вынести все в отдельную функцию
     if (!user.is_activated) {
-      const confirmation =
+      const lastConfirmation =
         await this.userConfirmationService.findLastUserConfirmation(user.uuid);
 
       const isConfirmationValid =
-        this.userConfirmationService.isConfirmationValid(confirmation);
+        this.userConfirmationService.isConfirmationExpired(lastConfirmation);
 
       if (isConfirmationValid) {
         throw new UnauthorizedException(
-          'Ваш аккаунт не подтвержден, мы отправили вам письмо на почту',
+          USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
         );
       } else {
-        return await this.userConfirmationService.userConfirmationIsNotValid(
+        return await this.userConfirmationService.checkAndHandleUserConfirmation(
           user,
+          lastConfirmation,
         );
       }
     }

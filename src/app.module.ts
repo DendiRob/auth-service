@@ -14,6 +14,7 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { GqlAuthTokenGuard } from './auth/strategies';
 import { ZodValidation } from './common/pipes/zod-validation.pipe';
 import { UserConfirmationModule } from './user-confirmation/userConfirmation.module';
+import { ForgottenPasswordModule } from './forgotten-password/forgottenPassword.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UserConfirmationModule } from './user-confirmation/userConfirmation.mod
     UserConfirmationModule,
     ConfigModule.forRoot(mainConfig),
     GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
+    ForgottenPasswordModule,
   ],
   providers: [
     {
