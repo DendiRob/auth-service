@@ -22,6 +22,7 @@ import {
   UserAgentAndIp,
 } from '@decorators/user-agent-and-ip.decorator';
 import { TokenService } from 'src/token/token.service';
+import { forgotPasswordInput } from './inputs/forgot-password.input';
 
 @Resolver()
 export class AuthResolver {
@@ -33,6 +34,32 @@ export class AuthResolver {
     private userConfirmationService: UserConfirmationService,
     private tokenService: TokenService,
   ) {}
+
+  @PublicResolver()
+  @UseGuards(GqlRefreshTokenGuard)
+  @Mutation(() => refreshDto)
+  async refresh(@Context('req') req: any) {
+    const refreshToken = req.headers['refresh-token'];
+
+    const session =
+      await this.sessionService.getSessionByRefreshToken(refreshToken);
+
+    if (!session || !session.is_active) {
+      throw new UnauthorizedException('Данная сессия не найдена или закрыта');
+    }
+
+    const user = await this.userService.findUserByUuid(session.user_uuid);
+
+    if (!user || user.is_deleted) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+
+    return await this.authService.refresh(
+      session.refresh_token,
+      user.uuid,
+      user.email,
+    );
+  }
 
   @PublicResolver()
   @Mutation(() => signUpLocalDto)
@@ -121,28 +148,37 @@ export class AuthResolver {
   }
 
   @PublicResolver()
-  @UseGuards(GqlRefreshTokenGuard)
-  @Mutation(() => refreshDto)
-  async refresh(@Context('req') req: any) {
-    const refreshToken = req.headers['refresh-token'];
+  @Mutation(() => String)
+  async forgotPassword(
+    @Args('forgotPassword') forgotPassword: forgotPasswordInput,
+    @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
+  ) {
+    const { email } = forgotPassword;
 
-    const session =
-      await this.sessionService.getSessionByRefreshToken(refreshToken);
+    const user = await this.userService.findUserByEmail(email);
 
-    if (!session || !session.is_active) {
-      throw new UnauthorizedException('Данная сессия не найдена или закрыта');
+    if (!user) {
+      throw new NotFoundException('Пользователь с таким email не существует');
+    }
+    // TODO: бойлерплейт ,возможно нужно вынести все в отдельную функцию
+    if (!user.is_activated) {
+      const confirmation =
+        await this.userConfirmationService.findLastUserConfirmation(user.uuid);
+
+      const isConfirmationValid =
+        this.userConfirmationService.isConfirmationValid(confirmation);
+
+      if (isConfirmationValid) {
+        throw new UnauthorizedException(
+          'Ваш аккаунт не подтвержден, мы отправили вам письмо на почту',
+        );
+      } else {
+        return await this.userConfirmationService.userConfirmationIsNotValid(
+          user,
+        );
+      }
     }
 
-    const user = await this.userService.findUserByUuid(session.user_uuid);
-
-    if (!user || user.is_deleted) {
-      throw new NotFoundException('Пользователь не найден');
-    }
-
-    return await this.authService.refresh(
-      session.refresh_token,
-      user.uuid,
-      user.email,
-    );
+    return 'sdadsa';
   }
 }
