@@ -1,6 +1,9 @@
-export type TForgottenPassword = {
+export type TCreateForgottenPassword = {
   user_uuid: string;
-  ip_address: string;
-  user_agent: string;
-  expires_at: Date;
+  ip_address?: string;
+  user_agent?: string;
+};
+
+export type TCreateForgottenPasswordAndSendEmail = TCreateForgottenPassword & {
+  email: string;
 };

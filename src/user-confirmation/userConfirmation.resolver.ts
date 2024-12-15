@@ -4,6 +4,7 @@ import { PublicResolver } from '@decorators/public-resolver.decorator';
 import { UserConfirmationService } from './userConfirmation.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { UserService } from 'src/user/user.service';
+import USER_CONFIRMATION_ERRORS from './constants/errors';
 import USER_ERRORS from 'src/user/constants/errors';
 import { throwException } from 'src/common/utils/service-error-handler';
 
@@ -28,25 +29,43 @@ export class UserConfirmationResolver {
     }
 
     if (user.is_activated) {
-      throwException(HttpStatus.BAD_REQUEST, USER_ERRORS.USER_NOT_FOUND);
+      throwException(HttpStatus.BAD_REQUEST, USER_ERRORS.USER_IS_ACTIVATED);
     }
 
     const confirmation =
       await this.userConfirmationService.findConfiramtion(confirmation_uuid);
 
-    const isConfirmationValid =
+    if (!confirmation) {
+      const lastUserConfirmation =
+        await this.userConfirmationService.findLastUserConfirmation(user_uuid);
+      if (lastUserConfirmation) {
+        const result =
+          await this.userConfirmationService.checkAndHandleUserConfirmation(
+            user,
+            lastUserConfirmation,
+          );
+
+        throwException(result.code, result.msg);
+      }
+    }
+
+    const isConfirmationExpired =
       this.userConfirmationService.isConfirmationExpired(confirmation);
 
-    if (isConfirmationValid) {
+    if (!isConfirmationExpired) {
       await this.userConfirmationService.confirmUser(confirmUserInput);
 
       return 'Аккаунт успешно подтвержден';
     } else {
+      const lastUserConfirmation =
+        await this.userConfirmationService.findLastUserConfirmation(user_uuid);
+
       const result =
         await this.userConfirmationService.checkAndHandleUserConfirmation(
           user,
-          confirmation,
+          lastUserConfirmation,
         );
+
       throwException(result.code, result.msg);
     }
   }

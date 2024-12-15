@@ -53,6 +53,7 @@ model ForgottenPassword {
   user_uuid  String
   ip_address String?
   user_agent String?
+  is_reseted Boolean  @default(false)
   expires_at DateTime
   created_at DateTime @default(now())
 

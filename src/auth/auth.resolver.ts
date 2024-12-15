@@ -22,8 +22,12 @@ import { compareHashedData } from 'src/common/utils/bcrypt';
 import USER_ERRORS from 'src/user/constants/errors';
 import USER_CONFIRMATION_ERRORS from 'src/user-confirmation/constants/errors';
 import AUTH_ERRORS from './constants/errors';
-import { throwException } from 'src/common/utils/service-error-handler';
+import {
+  ServiceError,
+  throwException,
+} from 'src/common/utils/service-error-handler';
 import SESSION_ERRORS from 'src/session/constants/errors';
+import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
 
 @Resolver()
 export class AuthResolver {
@@ -34,6 +38,7 @@ export class AuthResolver {
     private mailService: MailService,
     private userConfirmationService: UserConfirmationService,
     private tokenService: TokenService,
+    private forgottenPasswordService: ForgottenPasswordService,
   ) {}
 
   @PublicResolver()
@@ -46,7 +51,7 @@ export class AuthResolver {
       await this.sessionService.getSessionByRefreshToken(refreshToken);
 
     if (!session || !session.is_active) {
-      throwException(
+      return throwException(
         HttpStatus.UNAUTHORIZED,
         SESSION_ERRORS.USER_SESSION_NOT_FOUND_OR_CLOSED,
       );
@@ -113,15 +118,7 @@ export class AuthResolver {
       const lastConfirmation =
         await this.userConfirmationService.findLastUserConfirmation(user.uuid);
 
-      const isConfirmationValid =
-        this.userConfirmationService.isConfirmationExpired(lastConfirmation);
-
-      if (isConfirmationValid) {
-        throwException(
-          HttpStatus.UNAUTHORIZED,
-          USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
-        );
-      } else {
+      if (lastConfirmation) {
         const result =
           await this.userConfirmationService.checkAndHandleUserConfirmation(
             user,
@@ -129,6 +126,12 @@ export class AuthResolver {
           );
 
         throwException(result.code, result.msg);
+      } else {
+        this.userConfirmationService.createConfirmationAndSendEmail(user);
+        return throwException(
+          HttpStatus.UNAUTHORIZED,
+          USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
+        );
       }
     }
 
@@ -158,6 +161,7 @@ export class AuthResolver {
     @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
   ) {
     const { email } = forgotPassword;
+    const { ip_address, user_agent } = userAgentAndIp;
 
     const user = await this.userService.findUserByEmail(email);
 
@@ -170,24 +174,49 @@ export class AuthResolver {
       const lastConfirmation =
         await this.userConfirmationService.findLastUserConfirmation(user.uuid);
 
-      const isConfirmationValid =
-        this.userConfirmationService.isConfirmationExpired(lastConfirmation);
-
-      if (isConfirmationValid) {
-        throwException(
-          HttpStatus.UNAUTHORIZED,
-          USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
-        );
-      } else {
+      if (lastConfirmation) {
         const result =
           await this.userConfirmationService.checkAndHandleUserConfirmation(
             user,
             lastConfirmation,
           );
+
         throwException(result.code, result.msg);
+      } else {
+        this.userConfirmationService.createConfirmationAndSendEmail(user);
+        return throwException(
+          HttpStatus.UNAUTHORIZED,
+          USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
+        );
       }
     }
 
-    return 'sdadsa';
+    const forgottenPassword =
+      await this.forgottenPasswordService.findLastForgottenPasword(user.uuid);
+
+    const isForgottenPasswordExpired =
+      this.forgottenPasswordService.isForgottenPasswordExpired(
+        forgottenPassword,
+      );
+
+    if (!isForgottenPasswordExpired) {
+      return throwException(
+        HttpStatus.BAD_REQUEST,
+        FORGOTTEN_PASSWORD.ACTIVE_FORGOTTEN_PASSWORD,
+      );
+    }
+
+    const data = {
+      user_uuid: user.uuid,
+      ip_address,
+      user_agent,
+      email,
+    };
+
+    await this.forgottenPasswordService.createForgottenPasswordAndSendEmail(
+      data,
+    );
+
+    return 'Письмо для восстановления пароля отправлено вам на почту';
   }
 }

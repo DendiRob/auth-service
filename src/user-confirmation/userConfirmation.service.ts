@@ -4,7 +4,7 @@ import { TMaybeTranaction } from 'src/prisma/types';
 import { UserService } from 'src/user/user.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { MailService } from 'src/mail/mail.service';
-import ERRORS from './constants/errors';
+import USER_CONFIRMATION_ERRORS from './constants/errors';
 
 import type { User, UserConfirmation } from '@prisma/client';
 import { ServiceError } from 'src/common/utils/service-error-handler';
@@ -72,7 +72,9 @@ export class UserConfirmationService {
     });
   }
 
-  async findLastUserConfirmation(userUuid: string) {
+  async findLastUserConfirmation(
+    userUuid: string,
+  ): Promise<UserConfirmation | null> {
     return await this.prisma.userConfirmation.findFirst({
       where: {
         user_uuid: userUuid,
@@ -85,25 +87,33 @@ export class UserConfirmationService {
 
   async checkAndHandleUserConfirmation(
     user: User,
-    confirmation: UserConfirmation,
+    lastConfirmation: UserConfirmation | null,
   ): Promise<ServiceError> {
-    const isConfirmationActive = this.isConfirmationExpired(confirmation);
+    // TODO: рефакторинг, выглядит страшно
+    if (lastConfirmation) {
+      const isConfirmationExpired =
+        this.isConfirmationExpired(lastConfirmation);
 
-    if (isConfirmationActive) {
-      return new ServiceError(
-        HttpStatus.BAD_REQUEST,
-        ERRORS.ACTIVE_CONFIRMATION,
-      );
+      if (!isConfirmationExpired) {
+        return new ServiceError(
+          HttpStatus.BAD_REQUEST,
+          USER_CONFIRMATION_ERRORS.ACTIVE_CONFIRMATION,
+        );
+      }
     }
+
     await this.createConfirmationAndSendEmail(user);
 
-    return new ServiceError(HttpStatus.BAD_REQUEST, ERRORS.CONFIRMATION_SENT);
+    return new ServiceError(
+      HttpStatus.BAD_REQUEST,
+      USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
+    );
   }
 
-  isConfirmationExpired(confirmation: null | UserConfirmation) {
+  isConfirmationExpired(confirmation: UserConfirmation) {
     const now = new Date();
     const expirationTime = new Date(confirmation?.expires_at);
 
-    return confirmation && now < expirationTime;
+    return now > expirationTime;
   }
 }

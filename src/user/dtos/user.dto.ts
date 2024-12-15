@@ -9,7 +9,7 @@ export class UserDto {
   email: string;
 
   @Field({ nullable: true })
-  name?: string;
+  name: string | null;
 
   @Field()
   created_at: Date;

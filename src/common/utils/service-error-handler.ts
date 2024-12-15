@@ -1,3 +1,4 @@
+import { GqlExceptionPattern } from '@exceptions/gql-exceptions-shortcuts';
 import { ExceptionFactory } from '../factories/exception-factory/ExceptionFactory';
 
 export class ServiceError {
@@ -10,6 +11,9 @@ export class ServiceError {
   }
 }
 
-export function throwException(code: number, msg?: string) {
+export function throwException(
+  code: number,
+  msg?: string,
+): GqlExceptionPattern {
   throw ExceptionFactory.create(code, msg);
 }

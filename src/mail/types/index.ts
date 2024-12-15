@@ -3,3 +3,8 @@ export type TSendAuthConfirmation = {
   user_uuid: string;
   confirmationUuid: string;
 };
+
+export type TSendForgottenPasswordLink = {
+  to: string;
+  forgottenPasswordUuid: string;
+};

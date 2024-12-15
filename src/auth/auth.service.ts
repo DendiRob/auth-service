@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
 import { CreateUserInput } from 'src/user/inputs/create-user.input';
@@ -7,6 +7,7 @@ import { signUpLocalDto } from './dtos/sign-up-local.dto';
 import { TokenService } from 'src/token/token.service';
 import { hashData } from 'src/common/utils/bcrypt';
 import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
+import { throwException } from 'src/common/utils/service-error-handler';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
     private sessionService: SessionService,
     private userConfirmationService: UserConfirmationService,
     private tokenService: TokenService,
-    private forgottenPasswordService: ForgottenPasswordService,
+    // private forgottenPasswordService: ForgottenPasswordService,
   ) {}
 
   async refresh(oldRefreshToken: string, userUuid: string, userEmail: string) {
