@@ -85,11 +85,9 @@ export class UserConfirmationService {
     });
   }
 
-  async checkAndHandleUserConfirmation(
-    user: User,
-    lastConfirmation: UserConfirmation | null,
-  ): Promise<ServiceError> {
-    // TODO: рефакторинг, выглядит страшно
+  async userIsNotActivatedProccess(user: User): Promise<ServiceError> {
+    const lastConfirmation = await this.findLastUserConfirmation(user.uuid);
+
     if (lastConfirmation) {
       const isConfirmationExpired =
         this.isConfirmationExpired(lastConfirmation);

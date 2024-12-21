@@ -20,7 +20,10 @@ import { compareHashedData } from 'src/common/utils/bcrypt';
 import USER_ERRORS from 'src/user/constants/errors';
 import USER_CONFIRMATION_ERRORS from 'src/user-confirmation/constants/errors';
 import AUTH_ERRORS from './constants/errors';
-import { throwException } from 'src/common/utils/service-error-handler';
+import {
+  ServiceError,
+  throwException,
+} from 'src/common/utils/service-error-handler';
 import SESSION_ERRORS from 'src/session/constants/errors';
 import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
 
@@ -32,7 +35,6 @@ export class AuthResolver {
     private sessionService: SessionService,
     private userConfirmationService: UserConfirmationService,
     private tokenService: TokenService,
-    private forgottenPasswordService: ForgottenPasswordService,
   ) {}
 
   @PublicResolver()
@@ -51,16 +53,22 @@ export class AuthResolver {
       );
     }
 
-    const user = await this.userService.findUserByUuid(session.user_uuid);
+    const userResult = await this.userService.findActiveUserByUnique({
+      uuid: session.user_uuid,
+    });
 
-    if (!user || user.is_deleted) {
+    if (userResult instanceof ServiceError) {
+      return throwException(userResult.code, userResult.msg);
+    }
+
+    if (!userResult || userResult.is_deleted) {
       return throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
     }
 
     return await this.authService.refresh(
       session.refresh_token,
-      user.uuid,
-      user.email,
+      userResult.uuid,
+      userResult.email,
     );
   }
 
@@ -69,7 +77,9 @@ export class AuthResolver {
   async signUpLocal(@Args('signUpLocal') signUpLocal: signUpLocalInput) {
     const { repeated_password, ...userData } = signUpLocal;
 
-    const isUserExist = await this.userService.findUserByEmail(userData.email);
+    const isUserExist = await this.userService.findUserByUnique({
+      email: userData.email,
+    });
 
     if (isUserExist) {
       return throwException(
@@ -93,44 +103,40 @@ export class AuthResolver {
     const { email, password } = signInLocal;
     const { ip_address, user_agent } = userAgentAndIp;
 
-    const user = await this.userService.findUserByEmail(email);
+    const userResult = await this.userService.findActiveUserByUnique({
+      email,
+    });
 
-    if (!user) {
-      return throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
+    if (userResult instanceof ServiceError) {
+      return throwException(userResult.code, userResult.msg);
     }
 
-    const isPasswordValid = await compareHashedData(password, user.password);
+    const isPasswordValid = await compareHashedData(
+      password,
+      userResult.password,
+    );
 
     if (!isPasswordValid) {
       throwException(HttpStatus.UNAUTHORIZED, AUTH_ERRORS.INCORRECT_PASSWORD);
     }
 
-    if (!user.is_activated) {
-      const lastConfirmation =
-        await this.userConfirmationService.findLastUserConfirmation(user.uuid);
-
-      if (lastConfirmation) {
-        const result =
-          await this.userConfirmationService.checkAndHandleUserConfirmation(
-            user,
-            lastConfirmation,
-          );
-
-        throwException(result.code, result.msg);
-      } else {
-        this.userConfirmationService.createConfirmationAndSendEmail(user);
-        return throwException(
-          HttpStatus.UNAUTHORIZED,
-          USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
+    if (!userResult.is_activated) {
+      const result =
+        await this.userConfirmationService.userIsNotActivatedProccess(
+          userResult,
         );
-      }
+
+      throwException(result.code, result.msg);
     }
 
     // TODO: после того как добавим еще методы авторизации, возможно это надо вынести в отдельную функцию сервиса
-    const tokens = await this.tokenService.getTokens(user.uuid, user.email);
+    const tokens = await this.tokenService.getTokens(
+      userResult.uuid,
+      userResult.email,
+    );
 
     const sessionData = {
-      user_uuid: user.uuid,
+      user_uuid: userResult.uuid,
       refresh_token: tokens.refresh_token,
       ip_address,
       user_agent,
@@ -139,7 +145,7 @@ export class AuthResolver {
     await this.sessionService.createSession(sessionData);
 
     return {
-      user,
+      userResult,
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,
     };

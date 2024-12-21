@@ -6,7 +6,10 @@ import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { UserService } from 'src/user/user.service';
 import USER_CONFIRMATION_ERRORS from './constants/errors';
 import USER_ERRORS from 'src/user/constants/errors';
-import { throwException } from 'src/common/utils/service-error-handler';
+import {
+  ServiceError,
+  throwException,
+} from 'src/common/utils/service-error-handler';
 
 @Resolver()
 export class UserConfirmationResolver {
@@ -22,13 +25,15 @@ export class UserConfirmationResolver {
   ) {
     const { confirmation_uuid, user_uuid } = confirmUserInput;
 
-    const user = await this.userService.findUserByUuid(user_uuid);
+    const userResult = await this.userService.findActiveUserByUnique({
+      uuid: user_uuid,
+    });
 
-    if (!user) {
-      return throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
+    if (userResult instanceof ServiceError) {
+      return throwException(userResult.code, userResult.msg);
     }
 
-    if (user.is_activated) {
+    if (userResult.is_activated) {
       return throwException(
         HttpStatus.BAD_REQUEST,
         USER_ERRORS.USER_IS_ACTIVATED,
@@ -53,13 +58,9 @@ export class UserConfirmationResolver {
 
       return 'Аккаунт успешно подтвержден';
     } else {
-      const lastUserConfirmation =
-        await this.userConfirmationService.findLastUserConfirmation(user_uuid);
-
       const result =
-        await this.userConfirmationService.checkAndHandleUserConfirmation(
-          user,
-          lastUserConfirmation,
+        await this.userConfirmationService.userIsNotActivatedProccess(
+          userResult,
         );
 
       throwException(result.code, result.msg);
