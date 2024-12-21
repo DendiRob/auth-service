@@ -8,11 +8,11 @@ import { TMaybeTranaction } from 'src/prisma/types';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async findUserByUuid(uuid: string): Promise<User> {
+  async findUserByUuid(uuid: string): Promise<User | null> {
     return await this.prisma.user.findUnique({ where: { uuid } });
   }
 
-  async findUserByEmail(email: string): Promise<User> {
+  async findUserByEmail(email: string): Promise<User | null> {
     return await this.prisma.user.findUnique({ where: { email } });
   }
 

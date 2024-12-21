@@ -8,10 +8,10 @@ export class UserDto {
   @Field((type) => String)
   email: string;
 
-  @Field({ nullable: true })
+  @Field((type) => String, { nullable: true })
   name: string | null;
 
-  @Field()
+  @Field((type) => Date)
   created_at: Date;
 
   @Field(() => Boolean)

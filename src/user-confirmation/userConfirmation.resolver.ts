@@ -25,7 +25,7 @@ export class UserConfirmationResolver {
     const user = await this.userService.findUserByUuid(user_uuid);
 
     if (!user) {
-      throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
+      return throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
     }
 
     if (user.is_activated) {

@@ -13,7 +13,9 @@ export class RefreshTokenStrategy extends PassportStrategy(
 ) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromHeader(process.env.REFRESH_TOKEN_HEADER),
+      jwtFromRequest: ExtractJwt.fromHeader(
+        process.env.REFRESH_TOKEN_HEADER as string,
+      ),
       ignoreExpiration: false,
       secretOrKey: process.env.REFRESH_SECRET,
       passReqToCallback: true,
@@ -46,7 +48,7 @@ export class GqlRefreshTokenGuard extends AuthGuard('jwt-refresh') {
   ) {
     if (!user) {
       const req = this.getRequest(context);
-      const refresh = req.headers[process.env.REFRESH_TOKEN_HEADER];
+      const refresh = req.headers[process.env.REFRESH_TOKEN_HEADER as string];
 
       const session =
         await this.sessionService.getSessionByRefreshToken(refresh);
