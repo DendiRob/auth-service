@@ -18,7 +18,7 @@ export class ForgottenPasswordService {
     const now = new Date();
     const expirationTime = new Date(session.expires_at);
 
-    return session && now < expirationTime;
+    return session && now > expirationTime;
   }
 
   async findLastForgottenPasword(userUuid: string) {
@@ -48,8 +48,9 @@ export class ForgottenPasswordService {
   async createForgottenPasswordAndSendEmail(
     data: TCreateForgottenPasswordAndSendEmail,
   ) {
-    const { email } = data;
-    const session = await this.createForgottenPasswordSession(data);
+    const { email, ...createdSessionData } = data;
+    const session =
+      await this.createForgottenPasswordSession(createdSessionData);
 
     // TODO: добавить нормальный запрос на почту
     await this.mailService.sendForgottenPasswordLink({

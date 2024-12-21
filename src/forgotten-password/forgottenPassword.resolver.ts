@@ -5,5 +5,7 @@ import { Mutation, Resolver } from '@nestjs/graphql';
 export class ForgottenPasswordResolver {
   @PublicResolver()
   @Mutation(() => String)
-  async resetPassword() {}
+  async resetPassword() {
+    // TODO: надо не забыть сбросить все активные сессии у юзера
+  }
 }

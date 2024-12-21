@@ -28,6 +28,7 @@ import {
 } from 'src/common/utils/service-error-handler';
 import SESSION_ERRORS from 'src/session/constants/errors';
 import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
+import { FORGOTTEN_PASSWORD_ERRORS } from 'src/forgotten-password/constants/errors';
 
 @Resolver()
 export class AuthResolver {
@@ -78,17 +79,14 @@ export class AuthResolver {
     const isUserExist = await this.userService.findUserByEmail(userData.email);
 
     if (isUserExist) {
-      throwException(HttpStatus.BAD_REQUEST, AUTH_ERRORS.USER_IS_REGISTRATED);
+      return throwException(
+        HttpStatus.BAD_REQUEST,
+        AUTH_ERRORS.USER_IS_REGISTRATED,
+      );
     }
 
     const { user, confirmation } =
       await this.authService.signUpLocalUser(userData);
-
-    await this.mailService.sendAuthConfirmation({
-      to: user.email,
-      user_uuid: user.uuid,
-      confirmationUuid: confirmation.uuid,
-    });
 
     return { user, confirmation };
   }
@@ -154,69 +152,70 @@ export class AuthResolver {
     };
   }
 
-  // @PublicResolver()
-  // @Mutation(() => String)
-  // async forgotPassword(
-  //   @Args('forgotPassword') forgotPassword: forgotPasswordInput,
-  //   @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
-  // ) {
-  //   const { email } = forgotPassword;
-  //   const { ip_address, user_agent } = userAgentAndIp;
+  @PublicResolver()
+  @Mutation(() => String)
+  async forgotPassword(
+    @Args('forgotPassword') forgotPassword: forgotPasswordInput,
+    @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
+  ) {
+    const { email } = forgotPassword;
+    const { ip_address, user_agent } = userAgentAndIp;
 
-  //   const user = await this.userService.findUserByEmail(email);
+    const user = await this.userService.findUserByEmail(email);
 
-  //   if (!user) {
-  //     throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
-  //   }
+    if (!user) {
+      return throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
+    }
 
-  //   // TODO: бойлерплейт(повторяется проверка на кативный аккаунт) ,возможно нужно вынести все в отдельную функцию
-  //   if (!user.is_activated) {
-  //     const lastConfirmation =
-  //       await this.userConfirmationService.findLastUserConfirmation(user.uuid);
+    // TODO: бойлерплейт(повторяется проверка на акативный аккаунт) ,возможно нужно вынести все в отдельную функцию
+    if (!user.is_activated) {
+      const lastConfirmation =
+        await this.userConfirmationService.findLastUserConfirmation(user.uuid);
 
-  //     if (lastConfirmation) {
-  //       const result =
-  //         await this.userConfirmationService.checkAndHandleUserConfirmation(
-  //           user,
-  //           lastConfirmation,
-  //         );
+      if (lastConfirmation) {
+        const result =
+          await this.userConfirmationService.checkAndHandleUserConfirmation(
+            user,
+            lastConfirmation,
+          );
 
-  //       throwException(result.code, result.msg);
-  //     } else {
-  //       this.userConfirmationService.createConfirmationAndSendEmail(user);
-  //       return throwException(
-  //         HttpStatus.UNAUTHORIZED,
-  //         USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
-  //       );
-  //     }
-  //   }
+        throwException(result.code, result.msg);
+      } else {
+        this.userConfirmationService.createConfirmationAndSendEmail(user);
+        return throwException(
+          HttpStatus.UNAUTHORIZED,
+          USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
+        );
+      }
+    }
 
-  //   const forgottenPassword =
-  //     await this.forgottenPasswordService.findLastForgottenPasword(user.uuid);
+    const forgottenPassword =
+      await this.forgottenPasswordService.findLastForgottenPasword(user.uuid);
 
-  //   const isForgottenPasswordExpired =
-  //     this.forgottenPasswordService.isForgottenPasswordExpired(
-  //       forgottenPassword,
-  //     );
+    const isForgottenPasswordExpired = forgottenPassword
+      ? this.forgottenPasswordService.isForgottenPasswordExpired(
+          forgottenPassword,
+        )
+      : null;
 
-  //   if (!isForgottenPasswordExpired) {
-  //     return throwException(
-  //       HttpStatus.BAD_REQUEST,
-  //       FORGOTTEN_PASSWORD.ACTIVE_FORGOTTEN_PASSWORD,
-  //     );
-  //   }
+    if (isForgottenPasswordExpired !== null && !isForgottenPasswordExpired) {
+      return throwException(
+        HttpStatus.BAD_REQUEST,
+        FORGOTTEN_PASSWORD_ERRORS.ACTIVE_FORGOTTEN_PASSWORD,
+      );
+    }
 
-  //   const data = {
-  //     user_uuid: user.uuid,
-  //     ip_address,
-  //     user_agent,
-  //     email,
-  //   };
+    const data = {
+      user_uuid: user.uuid,
+      ip_address,
+      user_agent,
+      email,
+    };
 
-  //   await this.forgottenPasswordService.createForgottenPasswordAndSendEmail(
-  //     data,
-  //   );
+    await this.forgottenPasswordService.createForgottenPasswordAndSendEmail(
+      data,
+    );
 
-  //   return 'Письмо для восстановления пароля отправлено вам на почту';
-  // }
+    return 'Письмо для восстановления пароля отправлено вам на почту';
+  }
 }

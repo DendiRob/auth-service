@@ -27,6 +27,6 @@ export class MailService {
     //   subject: 'reset password',
     //   html: `<h1>${forgottenPasswordLink}</h1>`,
     // });
-    console.log('forgottenPasswordLink is sended');
+    console.log('forgottenPasswordLink is sended', forgottenPasswordLink);
   }
 }
