@@ -8,7 +8,7 @@ const forgotPasswordInputSchema = z.object({
 
 @ZodSchema(forgotPasswordInputSchema)
 @InputType()
-export class forgotPasswordInput {
+export class ForgotPasswordInput {
   @Field()
   email: string;
 }

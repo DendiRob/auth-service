@@ -3,6 +3,7 @@ import { CreateUserInput } from './inputs/create-user.input';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
 import { TMaybeTranaction } from 'src/prisma/types';
+import { TUserUpdate } from './types/user.service.types';
 
 @Injectable()
 export class UserService {
@@ -25,7 +26,7 @@ export class UserService {
 
   async updateUser(
     userUuid: string,
-    data: any,
+    data: Partial<TUserUpdate>,
     prisma: TMaybeTranaction = this.prisma,
   ) {
     return await prisma.user.update({ where: { uuid: userUuid }, data });

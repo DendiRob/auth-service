@@ -29,7 +29,10 @@ export class UserConfirmationResolver {
     }
 
     if (user.is_activated) {
-      throwException(HttpStatus.BAD_REQUEST, USER_ERRORS.USER_IS_ACTIVATED);
+      return throwException(
+        HttpStatus.BAD_REQUEST,
+        USER_ERRORS.USER_IS_ACTIVATED,
+      );
     }
 
     const confirmation =

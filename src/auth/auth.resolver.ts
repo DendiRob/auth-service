@@ -7,7 +7,6 @@ import { SessionService } from 'src/session/session.service';
 import { refreshDto } from './dtos/refresh.dto';
 import { GqlRefreshTokenGuard } from './strategies';
 import { PublicResolver } from '@decorators/public-resolver.decorator';
-import { MailService } from 'src/mail/mail.service';
 import { signUpLocalDto } from './dtos/sign-up-local.dto';
 import { signInLocalInput } from './inputs/sign-in-local.input';
 import { signInLocalDto } from './dtos/sign-in-local.dto';
@@ -17,18 +16,13 @@ import {
   UserAgentAndIp,
 } from '@decorators/user-agent-and-ip.decorator';
 import { TokenService } from 'src/token/token.service';
-import { forgotPasswordInput } from './inputs/forgot-password.input';
 import { compareHashedData } from 'src/common/utils/bcrypt';
 import USER_ERRORS from 'src/user/constants/errors';
 import USER_CONFIRMATION_ERRORS from 'src/user-confirmation/constants/errors';
 import AUTH_ERRORS from './constants/errors';
-import {
-  ServiceError,
-  throwException,
-} from 'src/common/utils/service-error-handler';
+import { throwException } from 'src/common/utils/service-error-handler';
 import SESSION_ERRORS from 'src/session/constants/errors';
 import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
-import { FORGOTTEN_PASSWORD_ERRORS } from 'src/forgotten-password/constants/errors';
 
 @Resolver()
 export class AuthResolver {
@@ -36,7 +30,6 @@ export class AuthResolver {
     private userService: UserService,
     private authService: AuthService,
     private sessionService: SessionService,
-    private mailService: MailService,
     private userConfirmationService: UserConfirmationService,
     private tokenService: TokenService,
     private forgottenPasswordService: ForgottenPasswordService,
@@ -150,72 +143,5 @@ export class AuthResolver {
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,
     };
-  }
-
-  @PublicResolver()
-  @Mutation(() => String)
-  async forgotPassword(
-    @Args('forgotPassword') forgotPassword: forgotPasswordInput,
-    @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
-  ) {
-    const { email } = forgotPassword;
-    const { ip_address, user_agent } = userAgentAndIp;
-
-    const user = await this.userService.findUserByEmail(email);
-
-    if (!user) {
-      return throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
-    }
-
-    // TODO: бойлерплейт(повторяется проверка на акативный аккаунт) ,возможно нужно вынести все в отдельную функцию
-    if (!user.is_activated) {
-      const lastConfirmation =
-        await this.userConfirmationService.findLastUserConfirmation(user.uuid);
-
-      if (lastConfirmation) {
-        const result =
-          await this.userConfirmationService.checkAndHandleUserConfirmation(
-            user,
-            lastConfirmation,
-          );
-
-        throwException(result.code, result.msg);
-      } else {
-        this.userConfirmationService.createConfirmationAndSendEmail(user);
-        return throwException(
-          HttpStatus.UNAUTHORIZED,
-          USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
-        );
-      }
-    }
-
-    const forgottenPassword =
-      await this.forgottenPasswordService.findLastForgottenPasword(user.uuid);
-
-    const isForgottenPasswordExpired = forgottenPassword
-      ? this.forgottenPasswordService.isForgottenPasswordExpired(
-          forgottenPassword,
-        )
-      : null;
-
-    if (isForgottenPasswordExpired !== null && !isForgottenPasswordExpired) {
-      return throwException(
-        HttpStatus.BAD_REQUEST,
-        FORGOTTEN_PASSWORD_ERRORS.ACTIVE_FORGOTTEN_PASSWORD,
-      );
-    }
-
-    const data = {
-      user_uuid: user.uuid,
-      ip_address,
-      user_agent,
-      email,
-    };
-
-    await this.forgottenPasswordService.createForgottenPasswordAndSendEmail(
-      data,
-    );
-
-    return 'Письмо для восстановления пароля отправлено вам на почту';
   }
 }

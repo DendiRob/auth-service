@@ -6,12 +6,16 @@ import {
 } from './types/forgottenPassword.types';
 import { MailService } from 'src/mail/mail.service';
 import { ForgottenPassword } from '@prisma/client';
+import { UserService } from 'src/user/user.service';
+import { SessionService } from 'src/session/session.service';
 
 @Injectable()
 export class ForgottenPasswordService {
   constructor(
     private prisma: PrismaService,
     private mailService: MailService,
+    private userService: UserService,
+    private sessionService: SessionService,
   ) {}
 
   isForgottenPasswordExpired(session: ForgottenPassword) {
@@ -21,7 +25,7 @@ export class ForgottenPasswordService {
     return session && now > expirationTime;
   }
 
-  async findLastForgottenPasword(userUuid: string) {
+  async findLastForgottenPassword(userUuid: string) {
     return await this.prisma.forgottenPassword.findFirst({
       where: {
         user_uuid: userUuid,
@@ -30,6 +34,10 @@ export class ForgottenPasswordService {
         created_at: 'desc',
       },
     });
+  }
+
+  async findForgottenPasswordByUuid(uuid: string) {
+    return await this.prisma.forgottenPassword.findUnique({ where: { uuid } });
   }
 
   async createForgottenPasswordSession(data: TCreateForgottenPassword) {
@@ -59,5 +67,28 @@ export class ForgottenPasswordService {
     });
 
     return session;
+  }
+
+  async resetPassword(userUuid: string, newHashedPassword: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const user = this.userService.updateUser(
+        userUuid,
+        { password: newHashedPassword },
+        tx,
+      );
+
+      await tx.forgottenPassword.updateMany({
+        where: {
+          user_uuid: userUuid,
+        },
+        data: {
+          is_reseted: true,
+        },
+      });
+
+      await this.sessionService.closeAllUserSessions(userUuid);
+
+      return user;
+    });
   }
 }

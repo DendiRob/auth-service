@@ -57,7 +57,7 @@ export class UserConfirmationService {
         tx,
       );
 
-      await this.prisma.userConfirmation.update({
+      await tx.userConfirmation.update({
         where: { uuid: confirmation_uuid },
         data: { is_confirmed: true },
       });

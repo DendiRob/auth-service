@@ -47,4 +47,18 @@ export class SessionService {
       where: { refresh_token: refreshToken },
     });
   }
+
+  async closeAllUserSessions(
+    userUuid: string,
+    prisma: TMaybeTranaction = this.prisma,
+  ) {
+    return prisma.session.updateMany({
+      where: {
+        user_uuid: userUuid,
+      },
+      data: {
+        is_active: false,
+      },
+    });
+  }
 }
