@@ -95,7 +95,7 @@ export class ForgottenPasswordResolver {
           userResult,
         );
 
-      throwException(result.code, result.msg);
+      return throwException(result.code, result.msg);
     }
 
     const forgottenPassword =

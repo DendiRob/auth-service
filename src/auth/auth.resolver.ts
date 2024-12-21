@@ -61,10 +61,6 @@ export class AuthResolver {
       return throwException(userResult.code, userResult.msg);
     }
 
-    if (!userResult || userResult.is_deleted) {
-      return throwException(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
-    }
-
     return await this.authService.refresh(
       session.refresh_token,
       userResult.uuid,
