@@ -7,6 +7,7 @@ import { UserService } from 'src/user/user.service';
 import USER_CONFIRMATION_ERRORS from './constants/errors';
 import USER_ERRORS from 'src/user/constants/errors';
 import { ServiceError, throwException } from 'src/common/utils/throw-exception';
+import { GqlResponse } from 'src/common/types';
 
 @Resolver()
 export class UserConfirmationResolver {
@@ -19,7 +20,7 @@ export class UserConfirmationResolver {
   @Mutation(() => String)
   async confirmUser(
     @Args('confirmUserInput') confirmUserInput: ConfirmUserInput,
-  ) {
+  ): Promise<GqlResponse<string>> {
     const { confirmation_uuid, user_uuid } = confirmUserInput;
 
     const userResult = await this.userService.findActiveUserByUnique({
@@ -60,7 +61,7 @@ export class UserConfirmationResolver {
           userResult,
         );
 
-      throwException(result.code, result.msg);
+      return throwException(result.code, result.msg);
     }
   }
 }

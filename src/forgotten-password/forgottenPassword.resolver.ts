@@ -13,6 +13,7 @@ import {
   UserAgentAndIp,
 } from '@decorators/user-agent-and-ip.decorator';
 import { ForgotPasswordInput } from 'src/forgotten-password/inputs/forgot-password.input';
+import { GqlResponse } from 'src/common/types';
 
 @Resolver()
 export class ForgottenPasswordResolver {
@@ -26,7 +27,7 @@ export class ForgottenPasswordResolver {
   @Mutation(() => String)
   async resetPassword(
     @Args('resetPassordInput') resetPassordInput: ResetPassordInput,
-  ) {
+  ): Promise<GqlResponse<string>> {
     const { forgottenPasswordSessionUuid, newPassword } = resetPassordInput;
 
     const currentSession =
@@ -74,7 +75,7 @@ export class ForgottenPasswordResolver {
   async forgotPassword(
     @Args('forgotPassword') forgotPassword: ForgotPasswordInput,
     @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
-  ) {
+  ): Promise<GqlResponse<string>> {
     const { email } = forgotPassword;
     const { ip_address, user_agent } = userAgentAndIp;
 
