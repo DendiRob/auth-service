@@ -2,10 +2,7 @@ import { PublicResolver } from '@decorators/public-resolver.decorator';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { ResetPassordInput } from './inputs/resetPassword.input';
 import { ForgottenPasswordService } from './forgottenPassword.service';
-import {
-  ServiceError,
-  throwException,
-} from 'src/common/utils/service-error-handler';
+import { ServiceError, throwException } from 'src/common/utils/throw-exception';
 import { HttpStatus } from '@nestjs/common';
 import { FORGOTTEN_PASSWORD_ERRORS } from './constants/errors';
 import { hashData } from 'src/common/utils/bcrypt';

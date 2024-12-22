@@ -6,10 +6,7 @@ import { ConfirmUserInput } from './inputs/confirmUser.input';
 import { UserService } from 'src/user/user.service';
 import USER_CONFIRMATION_ERRORS from './constants/errors';
 import USER_ERRORS from 'src/user/constants/errors';
-import {
-  ServiceError,
-  throwException,
-} from 'src/common/utils/service-error-handler';
+import { ServiceError, throwException } from 'src/common/utils/throw-exception';
 
 @Resolver()
 export class UserConfirmationResolver {

@@ -7,7 +7,7 @@ import { signUpLocalDto } from './dtos/sign-up-local.dto';
 import { TokenService } from 'src/token/token.service';
 import { hashData } from 'src/common/utils/bcrypt';
 import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
-import { throwException } from 'src/common/utils/service-error-handler';
+import { throwException } from 'src/common/utils/throw-exception';
 
 @Injectable()
 export class AuthService {

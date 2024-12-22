@@ -1,11 +1,12 @@
-import { UnauthorizedException } from '@exceptions/gql-exceptions-shortcuts';
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { Observable } from 'rxjs';
 import { IS_PUBLIC_KEY } from '@decorators/public-resolver.decorator';
+import { TUserRequest } from '../types';
+import { throwException } from 'src/common/utils/throw-exception';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(
@@ -49,9 +50,18 @@ export class GqlAuthTokenGuard extends AuthGuard('jwt-access') {
     return ctx.getContext().req;
   }
 
-  handleRequest(err: any, user: any, info: any, context: any, status: any) {
+  handleRequest(
+    err: any,
+    user: TUserRequest,
+    info: any,
+    context: any,
+    status: any,
+  ) {
     if (!user || info) {
-      throw new UnauthorizedException('Пользователь не авторизован');
+      return throwException(
+        HttpStatus.UNAUTHORIZED,
+        'Пользователь не авторизован',
+      );
     }
 
     return super.handleRequest(err, user, info, context, status);

@@ -20,12 +20,12 @@ import { compareHashedData } from 'src/common/utils/bcrypt';
 import USER_ERRORS from 'src/user/constants/errors';
 import USER_CONFIRMATION_ERRORS from 'src/user-confirmation/constants/errors';
 import AUTH_ERRORS from './constants/errors';
-import {
-  ServiceError,
-  throwException,
-} from 'src/common/utils/service-error-handler';
+import { ServiceError, throwException } from 'src/common/utils/throw-exception';
 import SESSION_ERRORS from 'src/session/constants/errors';
 import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
+import { ChangePasswordInput } from './inputs/change-password.input';
+import { GqlExceptionPattern } from '@exceptions/gql-exceptions-shortcuts';
+import { AuthenticatedRequest } from './types';
 
 @Resolver()
 export class AuthResolver {
@@ -40,7 +40,7 @@ export class AuthResolver {
   @PublicResolver()
   @UseGuards(GqlRefreshTokenGuard)
   @Mutation(() => refreshDto)
-  async refresh(@Context('req') req: any) {
+  async refresh(@Context('req') req: Request) {
     const refreshToken = req.headers['refresh-token'];
 
     const session =
@@ -95,7 +95,7 @@ export class AuthResolver {
   async signInLocal(
     @Args('signInLocal') signInLocal: signInLocalInput,
     @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
-  ) {
+  ): Promise<signInLocalDto | GqlExceptionPattern> {
     const { email, password } = signInLocal;
     const { ip_address, user_agent } = userAgentAndIp;
 
@@ -122,10 +122,9 @@ export class AuthResolver {
           userResult,
         );
 
-      throwException(result.code, result.msg);
+      return throwException(result.code, result.msg);
     }
 
-    // TODO: после того как добавим еще методы авторизации, возможно это надо вынести в отдельную функцию сервиса
     const tokens = await this.tokenService.getTokens(
       userResult.uuid,
       userResult.email,
@@ -141,9 +140,23 @@ export class AuthResolver {
     await this.sessionService.createSession(sessionData);
 
     return {
-      userResult,
+      user: userResult,
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,
     };
+  }
+
+  @Mutation(() => String)
+  async changePassword(
+    @Args('changePassword') changePasswordInput: ChangePasswordInput,
+    @Context('req') req: AuthenticatedRequest,
+  ) {
+    const { oldPassword, newPassword } = changePasswordInput;
+
+    console.log(oldPassword, 'oldPassword');
+    console.log(newPassword, 'newPassword');
+    console.log(req.user, 'req');
+
+    return 'Пароль успешно изменен';
   }
 }

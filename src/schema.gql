@@ -50,6 +50,7 @@ type Mutation {
   refresh: refreshDto!
   signUpLocal(signUpLocal: signUpLocalInput!): signUpLocalDto!
   signInLocal(signInLocal: signInLocalInput!): signInLocalDto!
+  changePassword(changePassword: ChangePasswordInput!): String!
   confirmUser(confirmUserInput: ConfirmUserInput!): String!
   resetPassword(resetPassordInput: ResetPassordInput!): String!
   forgotPassword(forgotPassword: ForgotPasswordInput!): String!
@@ -65,6 +66,11 @@ input signUpLocalInput {
 input signInLocalInput {
   email: String!
   password: String!
+}
+
+input ChangePasswordInput {
+  oldPassword: String!
+  newPassword: String!
 }
 
 input ConfirmUserInput {

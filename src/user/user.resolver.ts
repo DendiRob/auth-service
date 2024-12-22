@@ -3,10 +3,7 @@ import { UserService } from './user.service';
 import { UserDto } from './dtos/user.dto';
 import { NotFoundException } from '@exceptions/gql-exceptions-shortcuts';
 import USER_ERRORS from './constants/errors';
-import {
-  ServiceError,
-  throwException,
-} from 'src/common/utils/service-error-handler';
+import { ServiceError, throwException } from 'src/common/utils/throw-exception';
 
 @Resolver(() => UserDto)
 export class UserResolver {
