@@ -52,7 +52,7 @@ export class UserConfirmationService {
 
     return this.prisma.$transaction(async (tx) => {
       const user = this.userService.updateUser(
-        user_uuid,
+        { uuid: user_uuid },
         { is_activated: true },
         tx,
       );

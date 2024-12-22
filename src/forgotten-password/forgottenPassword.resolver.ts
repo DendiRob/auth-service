@@ -12,7 +12,7 @@ import {
   TUserAgentAndIp,
   UserAgentAndIp,
 } from '@decorators/user-agent-and-ip.decorator';
-import { ForgotPasswordInput } from 'src/auth/inputs/forgot-password.input';
+import { ForgotPasswordInput } from 'src/forgotten-password/inputs/forgot-password.input';
 
 @Resolver()
 export class ForgottenPasswordResolver {

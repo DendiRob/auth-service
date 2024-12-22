@@ -71,6 +71,7 @@ input signInLocalInput {
 input ChangePasswordInput {
   oldPassword: String!
   newPassword: String!
+  repeatNewPassword: String!
 }
 
 input ConfirmUserInput {

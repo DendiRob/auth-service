@@ -16,13 +16,10 @@ import {
   UserAgentAndIp,
 } from '@decorators/user-agent-and-ip.decorator';
 import { TokenService } from 'src/token/token.service';
-import { compareHashedData } from 'src/common/utils/bcrypt';
-import USER_ERRORS from 'src/user/constants/errors';
-import USER_CONFIRMATION_ERRORS from 'src/user-confirmation/constants/errors';
+import { compareHashedData, hashData } from 'src/common/utils/bcrypt';
 import AUTH_ERRORS from './constants/errors';
 import { ServiceError, throwException } from 'src/common/utils/throw-exception';
 import SESSION_ERRORS from 'src/session/constants/errors';
-import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
 import { ChangePasswordInput } from './inputs/change-password.input';
 import { GqlExceptionPattern } from '@exceptions/gql-exceptions-shortcuts';
 import { AuthenticatedRequest } from './types';
@@ -150,12 +147,33 @@ export class AuthResolver {
   async changePassword(
     @Args('changePassword') changePasswordInput: ChangePasswordInput,
     @Context('req') req: AuthenticatedRequest,
-  ) {
+  ): Promise<string | GqlExceptionPattern> {
     const { oldPassword, newPassword } = changePasswordInput;
+    const { sub: userUuid } = req.user;
 
-    console.log(oldPassword, 'oldPassword');
-    console.log(newPassword, 'newPassword');
-    console.log(req.user, 'req');
+    const userResult = await this.userService.findActiveUserByUnique({
+      uuid: userUuid,
+    });
+
+    if (userResult instanceof ServiceError) {
+      return throwException(userResult.code, userResult.msg);
+    }
+
+    const isOldPasswordValid = await compareHashedData(
+      oldPassword,
+      userResult.password,
+    );
+
+    if (!isOldPasswordValid) {
+      return throwException(
+        HttpStatus.BAD_REQUEST,
+        AUTH_ERRORS.INCORRECT_CURRENT_PASSWORD,
+      );
+    }
+
+    const hashedNewPasssword = await hashData(newPassword);
+
+    await this.authService.changePassword(userUuid, hashedNewPasssword);
 
     return 'Пароль успешно изменен';
   }

@@ -72,7 +72,7 @@ export class ForgottenPasswordService {
   async resetPassword(userUuid: string, newHashedPassword: string) {
     return this.prisma.$transaction(async (tx) => {
       const user = this.userService.updateUser(
-        userUuid,
+        { uuid: userUuid },
         { password: newHashedPassword },
         tx,
       );

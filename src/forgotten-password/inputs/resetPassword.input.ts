@@ -16,7 +16,7 @@ const resetPasswordInputSchema = z
   })
   .refine((data) => data.newPassword === data.reapeatNewPassword, {
     message: 'Пароли не совпадают',
-    path: ['repeated_password'],
+    path: ['reapeatNewPassword'],
   });
 
 @ZodSchema(resetPasswordInputSchema)

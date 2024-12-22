@@ -35,10 +35,10 @@ export class UserService {
   }
 
   async updateUser(
-    userUuid: string,
+    uniqueField: TUniqueUserFields,
     data: Partial<TUserUpdate>,
     prisma: TMaybeTranaction = this.prisma,
   ) {
-    return await prisma.user.update({ where: { uuid: userUuid }, data });
+    return await prisma.user.update({ where: uniqueField, data });
   }
 }

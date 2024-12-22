@@ -6,17 +6,20 @@ import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.
 import { signUpLocalDto } from './dtos/sign-up-local.dto';
 import { TokenService } from 'src/token/token.service';
 import { hashData } from 'src/common/utils/bcrypt';
-import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
-import { throwException } from 'src/common/utils/throw-exception';
+import {
+  TUniqueUserFields,
+  TUserUpdate,
+} from 'src/user/types/user.service.types';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
+    private prisma: PrismaService,
     private sessionService: SessionService,
     private userConfirmationService: UserConfirmationService,
     private tokenService: TokenService,
-    // private forgottenPasswordService: ForgottenPasswordService,
   ) {}
 
   async refresh(oldRefreshToken: string, userUuid: string, userEmail: string) {
@@ -53,5 +56,19 @@ export class AuthService {
       await this.userConfirmationService.createConfirmationAndSendEmail(user);
 
     return { user, confirmation };
+  }
+
+  async changePassword(userUuid: string, hashedNewPassword: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const user = this.userService.updateUser(
+        { uuid: userUuid },
+        { password: hashedNewPassword },
+        tx,
+      );
+
+      await this.sessionService.closeAllUserSessions(userUuid);
+
+      return user;
+    });
   }
 }
