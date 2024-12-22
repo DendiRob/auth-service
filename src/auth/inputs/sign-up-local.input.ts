@@ -1,6 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { ZodSchema } from '@decorators/zod-schema.decorator';
 import { z } from 'zod';
+import { passwordShema } from '../common-validation-schemas';
 
 const signUpLocalInputSchema = z
   .object({
@@ -9,12 +10,8 @@ const signUpLocalInputSchema = z
       .min(1, { message: 'Необходимо указать email' })
       .email({ message: 'Некорректный адрес электронной почты' }),
     name: z.string().optional(),
-    password: z
-      .string()
-      .min(5, { message: 'Минимальное количество символов: 5' }),
-    repeated_password: z
-      .string()
-      .min(5, { message: 'Минимальное количество символов: 5' }),
+    password: passwordShema,
+    repeated_password: passwordShema,
   })
   .refine((data) => data.password === data.repeated_password, {
     message: 'Пароли не совпадают',
@@ -23,7 +20,7 @@ const signUpLocalInputSchema = z
 
 @ZodSchema(signUpLocalInputSchema)
 @InputType()
-export class signUpLocalInput {
+export class SignUpLocalInput {
   @Field()
   email: string;
 

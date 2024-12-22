@@ -3,7 +3,7 @@ import { UserDto } from 'src/user/dtos/user.dto';
 import { UserConfirmationDto } from 'src/user-confirmation/dtos/user-confirmation.dto';
 
 @ObjectType()
-export class signUpLocalDto {
+export class SignUpLocalDto {
   @Field()
   user: UserDto;
 

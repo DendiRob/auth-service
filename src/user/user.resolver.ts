@@ -9,7 +9,7 @@ import { ServiceError, throwException } from 'src/common/utils/throw-exception';
 export class UserResolver {
   constructor(private userService: UserService) {}
 
-  @Query((returns) => UserDto)
+  @Query(() => UserDto)
   async user(@Args('uuid', { type: () => String }) uuid: string) {
     const userResult = await this.userService.findActiveUserByUnique({
       uuid,

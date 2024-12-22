@@ -3,7 +3,7 @@ import { UserDto } from 'src/user/dtos/user.dto';
 import { refreshDto } from './refresh.dto';
 
 @ObjectType()
-export class signInLocalDto extends refreshDto {
+export class SignInLocalDto extends refreshDto {
   @Field()
   user: UserDto;
 }

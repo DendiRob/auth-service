@@ -8,3 +8,9 @@ export type TUserUpdate = {
   is_deleted: boolean;
   is_activated: boolean;
 };
+
+export type TCreateUser = {
+  email: string;
+  password: string;
+  name?: string;
+};

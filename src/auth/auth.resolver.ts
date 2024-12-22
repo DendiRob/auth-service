@@ -1,15 +1,15 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { UserService } from 'src/user/user.service';
 import { HttpStatus, UseGuards } from '@nestjs/common';
-import { signUpLocalInput } from './inputs/sign-up-local.input';
+import { SignUpLocalInput } from './inputs/sign-up-local.input';
 import { AuthService } from './auth.service';
 import { SessionService } from 'src/session/session.service';
 import { refreshDto } from './dtos/refresh.dto';
 import { GqlRefreshTokenGuard } from './strategies';
 import { PublicResolver } from '@decorators/public-resolver.decorator';
-import { signUpLocalDto } from './dtos/sign-up-local.dto';
-import { signInLocalInput } from './inputs/sign-in-local.input';
-import { signInLocalDto } from './dtos/sign-in-local.dto';
+import { SignUpLocalDto } from './dtos/sign-up-local.dto';
+import { SignInLocalInput } from './inputs/sign-in-local.input';
+import { SignInLocalDto } from './dtos/sign-in-local.dto';
 import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
 import {
   TUserAgentAndIp,
@@ -22,7 +22,7 @@ import { ServiceError, throwException } from 'src/common/utils/throw-exception';
 import SESSION_ERRORS from 'src/session/constants/errors';
 import { ChangePasswordInput } from './inputs/change-password.input';
 import { GqlExceptionPattern } from '@exceptions/gql-exceptions-shortcuts';
-import { AuthenticatedRequest } from './types';
+import { AuthenticatedRequest, GqlResponse } from 'src/common/types';
 
 @Resolver()
 export class AuthResolver {
@@ -37,7 +37,9 @@ export class AuthResolver {
   @PublicResolver()
   @UseGuards(GqlRefreshTokenGuard)
   @Mutation(() => refreshDto)
-  async refresh(@Context('req') req: Request) {
+  async refresh(
+    @Context('req') req: Request,
+  ): Promise<GqlResponse<refreshDto>> {
     const refreshToken = req.headers['refresh-token'];
 
     const session =
@@ -66,8 +68,10 @@ export class AuthResolver {
   }
 
   @PublicResolver()
-  @Mutation(() => signUpLocalDto)
-  async signUpLocal(@Args('signUpLocal') signUpLocal: signUpLocalInput) {
+  @Mutation(() => SignUpLocalDto)
+  async signUpLocal(
+    @Args('signUpLocal') signUpLocal: SignUpLocalInput,
+  ): Promise<GqlResponse<SignUpLocalDto>> {
     const { repeated_password, ...userData } = signUpLocal;
 
     const isUserExist = await this.userService.findUserByUnique({
@@ -81,18 +85,28 @@ export class AuthResolver {
       );
     }
 
-    const { user, confirmation } =
-      await this.authService.signUpLocalUser(userData);
+    const hashedPasssword = await hashData(userData.password);
+
+    const createUserData = {
+      ...userData,
+      password: hashedPasssword,
+    };
+
+    // TODO: надо узнать, нужно ли это засовывать в транзакцию
+    const user = await this.userService.createUser(createUserData);
+
+    const confirmation =
+      await this.userConfirmationService.createConfirmationAndSendEmail(user);
 
     return { user, confirmation };
   }
 
   @PublicResolver()
-  @Mutation(() => signInLocalDto)
+  @Mutation(() => SignInLocalDto)
   async signInLocal(
-    @Args('signInLocal') signInLocal: signInLocalInput,
+    @Args('signInLocal') signInLocal: SignInLocalInput,
     @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
-  ): Promise<signInLocalDto | GqlExceptionPattern> {
+  ): Promise<GqlResponse<SignInLocalDto>> {
     const { email, password } = signInLocal;
     const { ip_address, user_agent } = userAgentAndIp;
 
@@ -147,7 +161,7 @@ export class AuthResolver {
   async changePassword(
     @Args('changePassword') changePasswordInput: ChangePasswordInput,
     @Context('req') req: AuthenticatedRequest,
-  ): Promise<string | GqlExceptionPattern> {
+  ): Promise<GqlResponse<string>> {
     const { oldPassword, newPassword } = changePasswordInput;
     const { sub: userUuid } = req.user;
 

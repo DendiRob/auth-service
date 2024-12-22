@@ -1,18 +1,13 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { ZodSchema } from '@decorators/zod-schema.decorator';
 import { z } from 'zod';
+import { passwordShema } from '../common-validation-schemas';
 
 const changePasswordInputSchema = z
   .object({
-    oldPassword: z
-      .string()
-      .min(5, { message: 'Минимальное количество символов: 5' }),
-    newPassword: z
-      .string()
-      .min(5, { message: 'Минимальное количество символов: 5' }),
-    repeatNewPassword: z
-      .string()
-      .min(5, { message: 'Минимальное количество символов: 5' }),
+    oldPassword: passwordShema,
+    newPassword: passwordShema,
+    repeatNewPassword: passwordShema,
   })
   .refine((data) => data.newPassword === data.repeatNewPassword, {
     message: 'Пароли не совпадают',
