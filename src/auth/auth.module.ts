@@ -6,7 +6,6 @@ import { SessionService } from 'src/session/session.service';
 import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 import { MailModule } from 'src/mail/mail.module';
 import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
-import { TokenService } from 'src/token/token.service';
 import { TokenModule } from 'src/token/token.module';
 import { ForgottenPasswordService } from 'src/forgotten-password/forgottenPassword.service';
 

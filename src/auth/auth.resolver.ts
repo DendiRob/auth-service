@@ -21,7 +21,6 @@ import AUTH_ERRORS from './constants/errors';
 import { ServiceError, throwException } from 'src/common/utils/throw-exception';
 import SESSION_ERRORS from 'src/session/constants/errors';
 import { ChangePasswordInput } from './inputs/change-password.input';
-import { GqlExceptionPattern } from '@exceptions/gql-exceptions-shortcuts';
 import { AuthenticatedRequest, GqlResponse } from 'src/common/types';
 
 @Resolver()

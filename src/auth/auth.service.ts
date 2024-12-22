@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SessionService } from 'src/session/session.service';
 import { UserService } from 'src/user/user.service';
-import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
 import { TokenService } from 'src/token/token.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -11,7 +10,6 @@ export class AuthService {
     private userService: UserService,
     private prisma: PrismaService,
     private sessionService: SessionService,
-    private userConfirmationService: UserConfirmationService,
     private tokenService: TokenService,
   ) {}
 
