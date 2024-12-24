@@ -50,6 +50,7 @@ type Mutation {
   refresh: refreshDto!
   signUpLocal(signUpLocal: SignUpLocalInput!): SignUpLocalDto!
   signInLocal(signInLocal: SignInLocalInput!): SignInLocalDto!
+  logout: String!
   changePassword(changePassword: ChangePasswordInput!): String!
   confirmUser(confirmUserInput: ConfirmUserInput!): String!
   resetPassword(resetPassordInput: ResetPassordInput!): String!

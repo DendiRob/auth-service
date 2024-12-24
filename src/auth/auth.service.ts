@@ -22,7 +22,7 @@ export class AuthService {
 
     const refreshExpiresAt = new Date(decodedRefreshToken.exp * 1000);
 
-    await this.sessionService.updateSession(oldRefreshToken, {
+    await this.sessionService.updateSessionByRefresh(oldRefreshToken, {
       refresh_expires_at: refreshExpiresAt,
       refresh_token: tokens.refresh_token,
     });

@@ -55,7 +55,7 @@ export class GqlRefreshTokenGuard extends AuthGuard('jwt-refresh') {
         await this.sessionService.getSessionByRefreshToken(refresh);
 
       if (session) {
-        await this.sessionService.updateSession(refresh, {
+        await this.sessionService.updateSessionByRefresh(refresh, {
           is_active: false,
         });
       }

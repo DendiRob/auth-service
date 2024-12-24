@@ -157,6 +157,34 @@ export class AuthResolver {
   }
 
   @Mutation(() => String)
+  async logout(
+    @Context('req') req: AuthenticatedRequest,
+  ): Promise<GqlResponse<String>> {
+    const refresh = req.headers[process.env.REFRESH_TOKEN_HEADER as string];
+    const session = await this.sessionService.getSessionByRefreshToken(refresh);
+
+    if (!refresh || !session) {
+      return throwException(
+        HttpStatus.UNAUTHORIZED,
+        SESSION_ERRORS.SESSION_NOT_FOUND,
+      );
+    }
+
+    if (!session.is_active) {
+      return throwException(
+        HttpStatus.BAD_REQUEST,
+        SESSION_ERRORS.SESSION_IS_CLOSED,
+      );
+    }
+
+    await this.sessionService.updateSessionByRefresh(refresh, {
+      is_active: false,
+    });
+
+    return 'Сессия успешно закрыта';
+  }
+
+  @Mutation(() => String)
   async changePassword(
     @Args('changePassword') changePasswordInput: ChangePasswordInput,
     @Context('req') req: AuthenticatedRequest,
