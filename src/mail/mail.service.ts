@@ -1,21 +1,33 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { TSendAuthConfirmation, TSendForgottenPasswordLink } from './types';
+import { render } from '@react-email/render';
+import UserConfirmationEmail from 'emails/user-confirmation-mail/UserConfirmationMail';
 
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendAuthConfirmation(data: TSendAuthConfirmation) {
-    const confirmationLink = `${process.env.FRONTEND_DOMAIN}/${data.user_uuid}/${data.confirmationUuid}`;
+    // TODO: сделать исключение, если нет домена
+    const siteDomain = process.env.FRONTEND_DOMAIN;
 
-    // await this.mailerService.sendMail({
-    //   to: data.to,
-    //   from: process.env.MAIL_USER,
-    //   subject: 'Confirm your account',
-    //   html: `<h1>${confirmationLink}</h1>`,
-    // });
-    console.log('confirmationLink is sended');
+    const confirmationLink = `${siteDomain}/${data.user_uuid}/${data.confirmationUuid}`;
+
+    const html = await render(
+      UserConfirmationEmail({
+        confirmUrl: confirmationLink,
+        email: data.to,
+        siteName: siteDomain ?? '',
+      }),
+    );
+
+    await this.mailerService.sendMail({
+      to: data.to,
+      from: process.env.MAIL_USER,
+      subject: `Подтвердите свои аккаунт на ${siteDomain}`,
+      html,
+    });
   }
 
   async sendForgottenPasswordLink(data: TSendForgottenPasswordLink) {

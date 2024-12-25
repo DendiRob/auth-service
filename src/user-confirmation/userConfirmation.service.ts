@@ -37,7 +37,6 @@ export class UserConfirmationService {
     const { email, uuid } = user;
     const confirmation = await this.createConfirmation(uuid);
 
-    // TODO: добавить нормальный запрос на почту
     await this.mailService.sendAuthConfirmation({
       to: email,
       user_uuid: uuid,
