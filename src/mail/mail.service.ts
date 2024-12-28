@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { TSendAuthConfirmation, TSendForgottenPasswordLink } from './types';
 import { render } from '@react-email/render';
 import UserConfirmationEmail from 'emails/user-confirmation-mail/UserConfirmationMail';
+import ForgetPasswordMail from 'emails/forget-password-mail/ForgetPasswordMail';
 
 @Injectable()
 export class MailService {
@@ -33,12 +34,19 @@ export class MailService {
   async sendForgottenPasswordLink(data: TSendForgottenPasswordLink) {
     const forgottenPasswordLink = `${process.env.FRONTEND_DOMAIN}/reset-password/${data.forgottenPasswordUuid}`;
 
-    // await this.mailerService.sendMail({
-    //   to: data.to,
-    //   from: process.env.MAIL_USER,
-    //   subject: 'reset password',
-    //   html: `<h1>${forgottenPasswordLink}</h1>`,
-    // });
-    console.log('forgottenPasswordLink is sended', forgottenPasswordLink);
+    const html = await render(
+      ForgetPasswordMail({
+        resetPasswordUrl: forgottenPasswordLink,
+        userNickname: data.to,
+        accountName: data.accountName,
+      }),
+    );
+
+    await this.mailerService.sendMail({
+      to: data.to,
+      from: process.env.MAIL_USER,
+      subject: 'Запрос на сброс пароля',
+      html,
+    });
   }
 }

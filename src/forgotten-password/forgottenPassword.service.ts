@@ -64,6 +64,7 @@ export class ForgottenPasswordService {
     await this.mailService.sendForgottenPasswordLink({
       to: email,
       forgottenPasswordUuid: session.uuid,
+      accountName: email,
     });
 
     return session;

@@ -7,4 +7,5 @@ export type TSendAuthConfirmation = {
 export type TSendForgottenPasswordLink = {
   to: string;
   forgottenPasswordUuid: string;
+  accountName: string;
 };

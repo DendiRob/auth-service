@@ -1,9 +1,9 @@
 import { Body, Button, Container, Font, Head, Heading, Html, Tailwind } from '@react-email/components';
 import * as React from 'react';
 
-type TProps = { confirmUrl: string, email: string, siteName: string }
+type TProps = { resetPasswordUrl: string, userNickname: string, accountName: string }
 
-export default function UserConfirmationEmail({ confirmUrl, email, siteName }: TProps) {
+export default function UserConfirmationEmail({ resetPasswordUrl, userNickname, accountName }: TProps) {
   // TODO: на телефоне не подтягиваются шрифты
   return (
     <Html lang="ru">
@@ -24,17 +24,21 @@ export default function UserConfirmationEmail({ confirmUrl, email, siteName }: T
       <Tailwind>
         <Body className="bg-[#f9f9f9] p-[10px]">
           <Container className="bg-white p-[20px] rounded-md">
-            <Heading as="h1" className="text-center m-0">Привет, {email}! <br/>
-              Ты зарегистрировался на {siteName}!
+            <Heading as="h1" className="text-center m-0 mb-[5px]">
+                Привет, {userNickname}!
             </Heading>
-            <Heading as="p" className="text-center">
-                Чтобы подтвердить свой адрес электронной почты и завершить регистрацию, нажмите на кнопку "Подтвердить регистрацию".
+            <Heading as="h2" className="text-center m-0 mb-2">
+                Мы получили запрос на сброс пароля аккаунта: {accountName}.
+            </Heading>
+            <Heading as="p" className="text-center mt-0 mb-2">
+                Нажмите на ссылку ниже, чтобы сменить пароль вашего аккаунта. <br />
+                Если вы не делали запрос на сброс пароля, просто проигнорируйте это сообщение.
             </Heading>
               <Button
-                href={confirmUrl}
+                href={resetPasswordUrl}
                 className="bg-[#00b3e5] py-[15px] px-[30px] rounded-[5px] text-white cursor-pointer block max-w-max m-auto"
               >
-                Подтвердить регистрацию
+                Сменить пароль
               </Button>
           </Container>
         </Body>
