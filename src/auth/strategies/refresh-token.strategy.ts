@@ -4,8 +4,8 @@ import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { throwException } from 'src/common/utils/throw-exception';
-import { SessionService } from 'src/session/session.service';
 import { TUserRequest } from '../types';
+import SESSION_ERRORS from 'src/session/constants/errors';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
@@ -30,7 +30,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
 
 @Injectable()
 export class GqlRefreshTokenGuard extends AuthGuard('jwt-refresh') {
-  constructor(private sessionService: SessionService) {
+  constructor() {
     super();
   }
 
@@ -39,32 +39,18 @@ export class GqlRefreshTokenGuard extends AuthGuard('jwt-refresh') {
     return ctx.getContext().req;
   }
 
-  // TODO: Что-то надо решать с такой реализацией, я не знаЮ, что именно может пойти не так, если риквест будет ассинхронным
-  //@ts-ignore: asdasd
-  async handleRequest(
-    err: any,
+  handleRequest(
+    err: unknown,
     user: TUserRequest,
-    info: any,
+    info: unknown,
     context: ExecutionContext,
   ) {
     if (!user) {
-      const req = this.getRequest(context);
-      const refresh = req.headers[process.env.REFRESH_TOKEN_HEADER as string];
-
-      const session =
-        await this.sessionService.getSessionByRefreshToken(refresh);
-
-      if (session) {
-        await this.sessionService.updateSessionByRefresh(refresh, {
-          is_active: false,
-        });
-      }
-
-      return throwException(
+      throwException(
         HttpStatus.UNAUTHORIZED,
-        'Данная сессия не найдена или закрыта',
-      );
+        SESSION_ERRORS.USER_SESSION_NOT_FOUND_OR_CLOSED,
+      ) as never;
     }
-    return user;
+    return super.handleRequest(err, user, info, context);
   }
 }

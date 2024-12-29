@@ -21,7 +21,7 @@ export class AccessTokenStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: TUserRequest) {
     return payload;
   }
 }
@@ -39,10 +39,8 @@ export class GqlAuthTokenGuard extends AuthGuard('jwt-access') {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) {
-      return true;
-    }
-    return super.canActivate(context);
+
+    return isPublic || super.canActivate(context);
   }
 
   getRequest(context: ExecutionContext) {
@@ -51,19 +49,18 @@ export class GqlAuthTokenGuard extends AuthGuard('jwt-access') {
   }
 
   handleRequest(
-    err: any,
+    err: unknown,
     user: TUserRequest,
-    info: any,
-    context: any,
-    status: any,
+    info: unknown,
+    context: ExecutionContext,
   ) {
-    if (!user || info) {
+    if (!user) {
       return throwException(
         HttpStatus.UNAUTHORIZED,
         'Пользователь не авторизован',
       );
     }
 
-    return super.handleRequest(err, user, info, context, status);
+    return super.handleRequest(err, user, info, context);
   }
 }

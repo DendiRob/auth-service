@@ -39,7 +39,8 @@ export class AuthResolver {
   async refresh(
     @Context('req') req: Request,
   ): Promise<GqlResponse<refreshDto>> {
-    const refreshToken = req.headers['refresh-token'];
+    const refreshToken =
+      req.headers[process.env.REFRESH_TOKEN_HEADER as string];
 
     const session =
       await this.sessionService.getSessionByRefreshToken(refreshToken);
@@ -100,6 +101,7 @@ export class AuthResolver {
     return { user, confirmation };
   }
 
+  // TODO: убрать локал, так как есть отдельная стратегия аутентификации с таким названием, у нас jwt based
   @PublicResolver()
   @Mutation(() => SignInLocalDto)
   async signInLocal(

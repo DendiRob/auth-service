@@ -4,7 +4,6 @@ import * as React from 'react';
 type TProps = { confirmUrl: string, email: string, siteName: string }
 
 export default function UserConfirmationEmail({ confirmUrl, email, siteName }: TProps) {
-  // TODO: на телефоне не подтягиваются шрифты
   return (
     <Html lang="ru">
       <Head>

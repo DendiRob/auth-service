@@ -60,12 +60,11 @@ export class ForgottenPasswordService {
     const session =
       await this.createForgottenPasswordSession(createdSessionData);
 
-    // TODO: добавить нормальный запрос на почту
-    await this.mailService.sendForgottenPasswordLink({
-      to: email,
-      forgottenPasswordUuid: session.uuid,
-      accountName: email,
-    });
+    // await this.mailService.sendForgottenPasswordLink({
+    //   to: email,
+    //   forgottenPasswordUuid: session.uuid,
+    //   accountName: email,
+    // });
 
     return session;
   }

@@ -107,7 +107,7 @@ export class ForgottenPasswordResolver {
         )
       : null;
 
-    if (isForgottenPasswordExpired !== null && !isForgottenPasswordExpired) {
+    if (forgottenPassword && !isForgottenPasswordExpired) {
       return throwException(
         HttpStatus.BAD_REQUEST,
         FORGOTTEN_PASSWORD_ERRORS.ACTIVE_FORGOTTEN_PASSWORD,

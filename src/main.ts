@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+// TODO: необходимо реализовать permissions/roles
 
 async function bootstrap() {
   const PORT = process.env.PORT || 4321;

@@ -4,7 +4,6 @@ import * as React from 'react';
 type TProps = { resetPasswordUrl: string, userNickname: string, accountName: string }
 
 export default function UserConfirmationEmail({ resetPasswordUrl, userNickname, accountName }: TProps) {
-  // TODO: на телефоне не подтягиваются шрифты
   return (
     <Html lang="ru">
       <Head>
