@@ -17,26 +17,12 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type refreshDto {
+type RefreshDto {
   access_token: String!
   refresh_token: String!
 }
 
-type UserConfirmationDto {
-  id: Float!
-  uuid: String!
-  user_uuid: String!
-  expires_at: DateTime!
-  created_at: DateTime!
-  is_confirmed: Boolean!
-}
-
-type SignUpLocalDto {
-  user: UserDto!
-  confirmation: UserConfirmationDto!
-}
-
-type SignInLocalDto {
+type SignInDto {
   access_token: String!
   refresh_token: String!
   user: UserDto!
@@ -47,9 +33,9 @@ type Query {
 }
 
 type Mutation {
-  refresh: refreshDto!
-  signUpLocal(signUpLocal: SignUpLocalInput!): SignUpLocalDto!
-  signInLocal(signInLocal: SignInLocalInput!): SignInLocalDto!
+  refresh: RefreshDto!
+  signUp(signUp: SignUpInput!): String!
+  signIn(signIn: SignInInput!): SignInDto!
   logout: String!
   changePassword(changePassword: ChangePasswordInput!): String!
   confirmUser(confirmUserInput: ConfirmUserInput!): String!
@@ -57,14 +43,14 @@ type Mutation {
   forgotPassword(forgotPassword: ForgotPasswordInput!): String!
 }
 
-input SignUpLocalInput {
+input SignUpInput {
   email: String!
   name: String
   password: String!
-  repeated_password: String!
+  repeatedPassword: String!
 }
 
-input SignInLocalInput {
+input SignInInput {
   email: String!
   password: String!
 }

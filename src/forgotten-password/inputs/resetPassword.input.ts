@@ -1,6 +1,6 @@
 import { ZodSchema } from '@decorators/zod-schema.decorator';
 import { Field, InputType } from '@nestjs/graphql';
-import { passwordShema } from 'src/auth/common-validation-schemas';
+import { passwordSсhema } from 'src/auth/validation-schemas';
 import { z } from 'zod';
 
 const resetPasswordInputSchema = z
@@ -8,8 +8,8 @@ const resetPasswordInputSchema = z
     forgottenPasswordSessionUuid: z
       .string()
       .min(1, { message: 'Необходимо указать forgottenPasswordSessionUuid' }),
-    newPassword: passwordShema,
-    reapeatNewPassword: passwordShema,
+    newPassword: passwordSсhema,
+    reapeatNewPassword: passwordSсhema,
   })
   .refine((data) => data.newPassword === data.reapeatNewPassword, {
     message: 'Пароли не совпадают',

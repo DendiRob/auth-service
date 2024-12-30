@@ -1,4 +1,4 @@
-import { MailerService } from '@nestjs-modules/mailer';
+import { type ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { TSendAuthConfirmation, TSendForgottenPasswordLink } from './types';
 import { render } from '@react-email/render';
@@ -8,6 +8,11 @@ import ForgetPasswordMail from 'emails/forget-password-mail/ForgetPasswordMail';
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService) {}
+
+  async sendEmail(emailOptions: ISendMailOptions) {
+    // TODO: Отключил,чтобы не спамило
+    // return await this.mailerService.sendMail(emailOptions);
+  }
 
   async sendAuthConfirmation(data: TSendAuthConfirmation) {
     // TODO: сделать исключение, если нет домена
@@ -23,7 +28,7 @@ export class MailService {
       }),
     );
 
-    await this.mailerService.sendMail({
+    await this.sendEmail({
       to: data.to,
       from: process.env.MAIL_USER,
       subject: `Подтвердите свои аккаунт на ${siteDomain}`,
@@ -42,7 +47,7 @@ export class MailService {
       }),
     );
 
-    await this.mailerService.sendMail({
+    await this.sendEmail({
       to: data.to,
       from: process.env.MAIL_USER,
       subject: 'Запрос на сброс пароля',
