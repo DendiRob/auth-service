@@ -15,7 +15,6 @@ export class MailService {
   }
 
   async sendAuthConfirmation(data: TSendAuthConfirmation) {
-    // TODO: сделать исключение, если нет домена
     const siteDomain = process.env.FRONTEND_DOMAIN;
 
     const confirmationLink = `${siteDomain}/${data.user_uuid}/${data.confirmationUuid}`;

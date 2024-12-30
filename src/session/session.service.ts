@@ -6,7 +6,6 @@ import { TokenService } from 'src/token/token.service';
 
 @Injectable()
 export class SessionService {
-  // TODO: работу с токенами надо вынести в отдельный модуль или сервис
   constructor(
     private prisma: PrismaService,
     private tokenService: TokenService,
