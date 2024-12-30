@@ -1,18 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { ZodSchema } from '@decorators/zod-schema.decorator';
-import { z } from 'zod';
-import { passwordShema } from '../common-validation-schemas';
-
-const changePasswordInputSchema = z
-  .object({
-    oldPassword: passwordShema,
-    newPassword: passwordShema,
-    repeatNewPassword: passwordShema,
-  })
-  .refine((data) => data.newPassword === data.repeatNewPassword, {
-    message: 'Пароли не совпадают',
-    path: ['repeatNewPassword'],
-  });
+import { changePasswordInputSchema } from '../validation-schemas';
 
 @ZodSchema(changePasswordInputSchema)
 @InputType()

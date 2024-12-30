@@ -36,7 +36,7 @@ type SignUpLocalDto {
   confirmation: UserConfirmationDto!
 }
 
-type SignInLocalDto {
+type SignInDto {
   access_token: String!
   refresh_token: String!
   user: UserDto!
@@ -49,7 +49,7 @@ type Query {
 type Mutation {
   refresh: refreshDto!
   signUpLocal(signUpLocal: SignUpLocalInput!): SignUpLocalDto!
-  signInLocal(signInLocal: SignInLocalInput!): SignInLocalDto!
+  signIn(signIn: SignInInput!): SignInDto!
   logout: String!
   changePassword(changePassword: ChangePasswordInput!): String!
   confirmUser(confirmUserInput: ConfirmUserInput!): String!
@@ -61,10 +61,10 @@ input SignUpLocalInput {
   email: String!
   name: String
   password: String!
-  repeated_password: String!
+  repeatedPassword: String!
 }
 
-input SignInLocalInput {
+input SignInInput {
   email: String!
   password: String!
 }

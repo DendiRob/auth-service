@@ -8,8 +8,8 @@ import { refreshDto } from './dtos/refresh.dto';
 import { GqlRefreshTokenGuard } from './strategies';
 import { PublicResolver } from '@decorators/public-resolver.decorator';
 import { SignUpLocalDto } from './dtos/sign-up-local.dto';
-import { SignInLocalInput } from './inputs/sign-in-local.input';
-import { SignInLocalDto } from './dtos/sign-in-local.dto';
+import { SignInInput } from './inputs/sign-in.input';
+import { SignInDto } from './dtos/sign-in.dto';
 import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
 import {
   TUserAgentAndIp,
@@ -72,7 +72,7 @@ export class AuthResolver {
   async signUpLocal(
     @Args('signUpLocal') signUpLocal: SignUpLocalInput,
   ): Promise<GqlResponse<SignUpLocalDto>> {
-    const { repeated_password, ...userData } = signUpLocal;
+    const { repeatedPassword, ...userData } = signUpLocal;
 
     const isUserExist = await this.userService.findUserByUnique({
       email: userData.email,
@@ -92,7 +92,6 @@ export class AuthResolver {
       password: hashedPasssword,
     };
 
-    // TODO: надо узнать, нужно ли это засовывать в транзакцию
     const user = await this.userService.createUser(createUserData);
 
     const confirmation =
@@ -103,12 +102,12 @@ export class AuthResolver {
 
   // TODO: убрать локал, так как есть отдельная стратегия аутентификации с таким названием, у нас jwt based
   @PublicResolver()
-  @Mutation(() => SignInLocalDto)
-  async signInLocal(
-    @Args('signInLocal') signInLocal: SignInLocalInput,
+  @Mutation(() => SignInDto)
+  async signIn(
+    @Args('signIn') signIn: SignInInput,
     @UserAgentAndIp() userAgentAndIp: TUserAgentAndIp,
-  ): Promise<GqlResponse<SignInLocalDto>> {
-    const { email, password } = signInLocal;
+  ): Promise<GqlResponse<SignInDto>> {
+    const { email, password } = signIn;
     const { ip_address, user_agent } = userAgentAndIp;
 
     const userResult = await this.userService.findActiveUserByUnique({
