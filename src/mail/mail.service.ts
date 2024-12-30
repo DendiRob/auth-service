@@ -10,8 +10,7 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendEmail(emailOptions: ISendMailOptions) {
-    // TODO: Отключил,чтобы не спамило
-    // return await this.mailerService.sendMail(emailOptions);
+    return await this.mailerService.sendMail(emailOptions);
   }
 
   async sendAuthConfirmation(data: TSendAuthConfirmation) {

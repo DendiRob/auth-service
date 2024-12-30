@@ -1,6 +1,6 @@
 USE `YOUR_DB`;
 
--- скрипт добавляет триггер для обновления поля updated_at везде, где это есть
+-- скрипт добавляет триггер для обновления поля updated_at везде, где есть такое поле
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
