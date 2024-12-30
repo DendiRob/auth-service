@@ -4,7 +4,7 @@ import { signUpLocalInputSchema } from '../validation-schemas';
 
 @ZodSchema(signUpLocalInputSchema)
 @InputType()
-export class SignUpLocalInput {
+export class SignUpInput {
   @Field()
   email: string;
 

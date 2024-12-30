@@ -1,13 +1,12 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { UserService } from 'src/user/user.service';
 import { HttpStatus, UseGuards } from '@nestjs/common';
-import { SignUpLocalInput } from './inputs/sign-up-local.input';
+import { SignUpInput } from './inputs/sign-up.input';
 import { AuthService } from './auth.service';
 import { SessionService } from 'src/session/session.service';
-import { refreshDto } from './dtos/refresh.dto';
+import { RefreshDto } from './dtos/refresh.dto';
 import { GqlRefreshTokenGuard } from './strategies';
 import { PublicResolver } from '@decorators/public-resolver.decorator';
-import { SignUpLocalDto } from './dtos/sign-up-local.dto';
 import { SignInInput } from './inputs/sign-in.input';
 import { SignInDto } from './dtos/sign-in.dto';
 import { UserConfirmationService } from 'src/user-confirmation/userConfirmation.service';
@@ -35,10 +34,10 @@ export class AuthResolver {
 
   @PublicResolver()
   @UseGuards(GqlRefreshTokenGuard)
-  @Mutation(() => refreshDto)
+  @Mutation(() => RefreshDto)
   async refresh(
     @Context('req') req: Request,
-  ): Promise<GqlResponse<refreshDto>> {
+  ): Promise<GqlResponse<RefreshDto>> {
     const refreshToken =
       req.headers[process.env.REFRESH_TOKEN_HEADER as string];
 
@@ -68,11 +67,11 @@ export class AuthResolver {
   }
 
   @PublicResolver()
-  @Mutation(() => SignUpLocalDto)
-  async signUpLocal(
-    @Args('signUpLocal') signUpLocal: SignUpLocalInput,
-  ): Promise<GqlResponse<SignUpLocalDto>> {
-    const { repeatedPassword, ...userData } = signUpLocal;
+  @Mutation(() => String)
+  async signUp(
+    @Args('signUp') signUp: SignUpInput,
+  ): Promise<GqlResponse<string>> {
+    const { repeatedPassword, ...userData } = signUp;
 
     const isUserExist = await this.userService.findUserByUnique({
       email: userData.email,
@@ -94,13 +93,11 @@ export class AuthResolver {
 
     const user = await this.userService.createUser(createUserData);
 
-    const confirmation =
-      await this.userConfirmationService.createConfirmationAndSendEmail(user);
+    await this.userConfirmationService.createConfirmationAndSendEmail(user);
 
-    return { user, confirmation };
+    return 'Регистрация прошла успешно! Мы отправили письмо для подтверждения аккаунта на вашу почту.';
   }
 
-  // TODO: убрать локал, так как есть отдельная стратегия аутентификации с таким названием, у нас jwt based
   @PublicResolver()
   @Mutation(() => SignInDto)
   async signIn(
