@@ -1,6 +1,9 @@
 import { type ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { TSendAuthConfirmation, TSendForgottenPasswordLink } from './types';
+import {
+  TSendAuthConfirmation,
+  TSendForgottenPasswordLink,
+} from './types/mail.service.types';
 import { render } from '@react-email/render';
 import UserConfirmationEmail from '@emails/user-confirmation-mail/UserConfirmationMail';
 import ForgetPasswordMail from '@emails/forget-password-mail/ForgetPasswordMail';

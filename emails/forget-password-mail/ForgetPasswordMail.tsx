@@ -3,7 +3,7 @@ import * as React from 'react';
 
 type TProps = { resetPasswordUrl: string, userNickname: string, accountName: string }
 
-export default function UserConfirmationEmail({ resetPasswordUrl, userNickname, accountName }: TProps) {
+export default function ForgetPasswordMail({ resetPasswordUrl, userNickname, accountName }: TProps) {
   return (
     <Html lang="ru">
       <Head>
