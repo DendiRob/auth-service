@@ -16,7 +16,7 @@ export class UserResolver {
   async user(
     @Args('uniqueField') uniqueField: UniqueUserInput,
   ): Promise<GqlResponse<UserDto>> {
-    if (!uniqueField || Object.entries(uniqueField).length === 0) {
+    if (!uniqueField || Object.keys(uniqueField).length === 0) {
       return throwException(HttpStatus.BAD_REQUEST, USER_ERRORS.USER_NOT_FOUND);
     }
 
