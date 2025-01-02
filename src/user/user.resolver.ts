@@ -3,6 +3,8 @@ import { UserService } from './user.service';
 import { UserDto } from './dtos/user.dto';
 import { ServiceError, throwException } from '@utils/throw-exception';
 import { GqlResponse } from '@src/common/types';
+import { TUniqueUserFields } from './types/user.service.types';
+import { UniqueUserInput } from './inputs/get-user.input';
 
 @Resolver(() => UserDto)
 export class UserResolver {
@@ -10,11 +12,11 @@ export class UserResolver {
 
   @Query(() => UserDto)
   async user(
-    @Args('uuid', { type: () => String }) uuid: string,
+    @Args('uniqueField') uniqueField: UniqueUserInput,
   ): Promise<GqlResponse<UserDto>> {
-    const userResult = await this.userService.findActiveUserByUnique({
-      uuid,
-    });
+    const userResult = await this.userService.findActiveUserByUnique(
+      uniqueField as TUniqueUserFields,
+    );
 
     if (userResult instanceof ServiceError) {
       return throwException(userResult.code, userResult.msg);

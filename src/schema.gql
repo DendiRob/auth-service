@@ -29,7 +29,12 @@ type SignInDto {
 }
 
 type Query {
-  user(uuid: String!): UserDto!
+  user(uniqueField: UniqueUserInput!): UserDto!
+}
+
+input UniqueUserInput {
+  email: String
+  uuid: String
 }
 
 type Mutation {
