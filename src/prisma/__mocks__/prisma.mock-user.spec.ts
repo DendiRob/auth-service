@@ -19,7 +19,7 @@ export const userMock = {
   ForgottenPassword: [],
 };
 
-export class MockPrismaService {
+export class MockPrismaServiceUser {
   user = {
     findUnique: jest.fn(),
     create: jest.fn(),

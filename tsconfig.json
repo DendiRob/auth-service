@@ -23,6 +23,7 @@
       "@exceptions/*": ["src/common/exceptions/*"],
       "@emails/*": ["emails/*"],
       "@src/*": ["src/*"],
+      "@utils/*": ["src/common/utils/*"],
     },
   }
 }

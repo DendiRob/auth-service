@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { PrismaService } from '@src/prisma/prisma.service';
 import {
-  MockPrismaService,
+  MockPrismaServiceUser,
   userMock,
-} from '@src/prisma/__mocks__/prisma.mock.spec';
+} from '@src/prisma/__mocks__/prisma.mock-user.spec';
 import { ServiceError } from '@src/common/utils/throw-exception';
 import { HttpStatus } from '@nestjs/common';
 import USER_ERRORS from './constants/errors';
@@ -16,7 +16,7 @@ describe('UserService', () => {
 
   beforeEach(async () => {
     prismaServiceMock =
-      new MockPrismaService() as unknown as jest.Mocked<PrismaService>;
+      new MockPrismaServiceUser() as unknown as jest.Mocked<PrismaService>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

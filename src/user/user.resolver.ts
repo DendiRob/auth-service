@@ -1,8 +1,8 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { UserDto } from './dtos/user.dto';
-import { ServiceError, throwException } from 'src/common/utils/throw-exception';
-import { GqlResponse } from 'src/common/types';
+import { ServiceError, throwException } from '@utils/throw-exception';
+import { GqlResponse } from '@src/common/types';
 
 @Resolver(() => UserDto)
 export class UserResolver {
