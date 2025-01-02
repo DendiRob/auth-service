@@ -5,6 +5,8 @@ import { ServiceError, throwException } from '@utils/throw-exception';
 import { GqlResponse } from '@src/common/types';
 import { TUniqueUserFields } from './types/user.service.types';
 import { UniqueUserInput } from './inputs/get-user.input';
+import { HttpStatus } from '@nestjs/common';
+import USER_ERRORS from './constants/errors';
 
 @Resolver(() => UserDto)
 export class UserResolver {
@@ -14,6 +16,10 @@ export class UserResolver {
   async user(
     @Args('uniqueField') uniqueField: UniqueUserInput,
   ): Promise<GqlResponse<UserDto>> {
+    if (!uniqueField || Object.entries(uniqueField).length === 0) {
+      return throwException(HttpStatus.BAD_REQUEST, USER_ERRORS.USER_NOT_FOUND);
+    }
+
     const userResult = await this.userService.findActiveUserByUnique(
       uniqueField as TUniqueUserFields,
     );
