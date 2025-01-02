@@ -97,7 +97,10 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "^@emails/(.*)$": "<rootDir>/../emails/$1"
+      "^@emails/(.*)$": "<rootDir>/../emails/$1",
+      "^@src/(.*)$": "<rootDir>/$1",
+      "^@exceptions/(.*)$": "<rootDir>/common/exceptions/$1",
+      "^@decorators/(.*)$": "<rootDir>/common/decorators/$1"
     }
   }
 }
