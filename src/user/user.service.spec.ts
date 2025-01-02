@@ -4,7 +4,7 @@ import { PrismaService } from '@src/prisma/prisma.service';
 import {
   MockPrismaServiceUser,
   userMock,
-} from '@src/prisma/__mocks__/prisma.mock-user.spec';
+} from '@src/prisma/__mocks__/prisma.model.user.spec';
 import { ServiceError } from '@src/common/utils/throw-exception';
 import { HttpStatus } from '@nestjs/common';
 import USER_ERRORS from './constants/errors';
