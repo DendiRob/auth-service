@@ -3,7 +3,7 @@ import { UserConfirmation } from '@prisma/client';
 export const userConfirmationMock = {
   id: 1,
   uuid: 'b34b8c8d-d9c5-4b7f-8c69-15cc7bb292d5',
-  user_uuid: 1,
+  user_uuid: 'b3118c8d-d9c5-4b7f-8c69-15cc7bb292d5',
   expires_at: new Date('2025-01-01T00:10:00Z'),
   created_at: new Date('2025-01-01T00:00:00Z'),
   is_confirmed: true,

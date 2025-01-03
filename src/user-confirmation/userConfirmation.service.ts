@@ -8,6 +8,7 @@ import USER_CONFIRMATION_ERRORS from './constants/errors';
 
 import type { User, UserConfirmation } from '@prisma/client';
 import { ServiceError } from '@src/common/utils/throw-exception';
+import { TCreateConfirmationAndSendEmail } from './types/userConfirmation.service.types';
 
 @Injectable()
 export class UserConfirmationService {
@@ -33,7 +34,7 @@ export class UserConfirmationService {
     });
   }
 
-  async createConfirmationAndSendEmail(user: User) {
+  async createConfirmationAndSendEmail(user: TCreateConfirmationAndSendEmail) {
     const { email, uuid } = user;
     const confirmation = await this.createConfirmation(uuid);
 

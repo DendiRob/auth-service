@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserConfirmationService } from './userConfirmation.service';
 import { PrismaService } from '@src/prisma/prisma.service';
-import { MockPrismaUserConfirmation } from '@src/prisma/__mocks__/prisma.model.userConfiramtion.spec';
+import {
+  MockPrismaUserConfirmation,
+  userConfirmationMock,
+} from '@src/prisma/__mocks__/prisma.model.userConfiramtion.spec';
 import { UserService } from '@src/user/user.service';
 import { MockUserService } from '@src/user/__mocks__/user.service.mock.spec';
 import { MailService } from '@src/mail/mail.service';
@@ -46,5 +49,26 @@ describe('UserConfirmationService', () => {
     expect(confirmation).toBeDefined();
 
     expect(confirmation.created_at < confirmation.expires_at).toBe(true);
+  });
+
+  it('должен создать подтверждение аккаунта и отправить письмо на почту', async () => {
+    const { email, uuid } = userMock;
+    const createdConfirmation = jest
+      .spyOn(service, 'createConfirmation')
+      .mockResolvedValue(userConfirmationMock);
+
+    const confirmation = await service.createConfirmationAndSendEmail({
+      email: userMock.email,
+      uuid: userMock.uuid,
+    });
+
+    expect(confirmation).toBeDefined();
+    expect(mailServiceMock.sendAuthConfirmation).toHaveBeenCalledWith({
+      to: email,
+      user_uuid: uuid,
+      confirmationUuid: confirmation.uuid,
+    });
+
+    expect(createdConfirmation).toHaveBeenCalled();
   });
 });
