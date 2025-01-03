@@ -13,7 +13,8 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendEmail(emailOptions: ISendMailOptions) {
-    return await this.mailerService.sendMail(emailOptions);
+    // TODO: отключил отправку почты на время разработки
+    // return await this.mailerService.sendMail(emailOptions);
   }
 
   async sendAuthConfirmation(data: TSendAuthConfirmation) {
