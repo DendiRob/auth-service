@@ -37,6 +37,14 @@ export class UserConfirmationService {
     });
   }
 
+  async updateUserConfirmation(
+    uuid: string,
+    data: TUpdateUserConfirmation,
+    prisma: TMaybeTranaction = this.prisma,
+  ) {
+    return await prisma.userConfirmation.update({ where: { uuid }, data });
+  }
+
   async createConfirmationAndSendEmail(user: TCreateConfirmationAndSendEmail) {
     const { email, uuid } = user;
     const confirmation = await this.createConfirmation(uuid);
@@ -70,14 +78,6 @@ export class UserConfirmationService {
 
       return user;
     });
-  }
-
-  async updateUserConfirmation(
-    uuid: string,
-    data: TUpdateUserConfirmation,
-    prisma: TMaybeTranaction = this.prisma,
-  ) {
-    return await prisma.userConfirmation.update({ where: { uuid }, data });
   }
 
   async findConfiramtion(confirmationUuid: string) {

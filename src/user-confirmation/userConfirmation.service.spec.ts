@@ -72,6 +72,19 @@ describe('UserConfirmationService', () => {
     expect(createdConfirmation).toHaveBeenCalled();
   });
 
+  it('должен обновить запись сессии подтверждения аккаунта юзера', async () => {
+    const result = await service.updateUserConfirmation(
+      userConfirmationMock.uuid,
+      { is_confirmed: true },
+    );
+
+    expect(result.is_confirmed).toBeTruthy();
+    expect(prismaServiceMock.userConfirmation.update).toHaveBeenCalledWith({
+      where: { uuid: userConfirmationMock.uuid },
+      data: { is_confirmed: true },
+    });
+  });
+
   it('должен подтвердить аккаунт', async () => {
     expect(userMock.is_activated).toBeFalsy();
 
