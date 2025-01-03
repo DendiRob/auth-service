@@ -1,0 +1,32 @@
+import { UserConfirmation } from '@prisma/client';
+
+export const userConfirmationMock = {
+  id: 1,
+  uuid: 'b34b8c8d-d9c5-4b7f-8c69-15cc7bb292d5',
+  user_uuid: 1,
+  expires_at: new Date('2025-01-01T00:10:00Z'),
+  created_at: new Date('2025-01-01T00:00:00Z'),
+  is_confirmed: true,
+  User: [],
+};
+
+type TCreateUserConfirmationMock = {
+  data: {
+    user_uuid: string;
+    expires_at: Date;
+  };
+};
+
+export class MockPrismaUserConfirmation {
+  userConfirmation = {
+    create: jest.fn(
+      ({ data }: TCreateUserConfirmationMock): UserConfirmation => {
+        return {
+          ...userConfirmationMock,
+          created_at: new Date(),
+          ...data,
+        };
+      },
+    ),
+  };
+}

@@ -1,13 +1,13 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { TMaybeTranaction } from 'src/prisma/types';
-import { UserService } from 'src/user/user.service';
+import { PrismaService } from '@src/prisma/prisma.service';
+import { TMaybeTranaction } from '@src/prisma/types';
+import { UserService } from '@src/user/user.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from '@src/mail/mail.service';
 import USER_CONFIRMATION_ERRORS from './constants/errors';
 
 import type { User, UserConfirmation } from '@prisma/client';
-import { ServiceError } from 'src/common/utils/throw-exception';
+import { ServiceError } from '@src/common/utils/throw-exception';
 
 @Injectable()
 export class UserConfirmationService {
