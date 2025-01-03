@@ -10,9 +10,6 @@ describe('TokenService', () => {
   const email = 'test@example.com';
 
   beforeEach(async () => {
-    process.env.ACCESS_TOKEN_LIFE = '3600';
-    process.env.ACCESS_SECRET = 'mock-secret';
-
     jwtServiceMock = {
       signAsync: jest.fn().mockResolvedValue('mocked-jwt-token'),
       decode: jest

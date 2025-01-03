@@ -13,15 +13,12 @@ describe('MailService', () => {
   let service: MailService;
   let mailerServiceMock: jest.Mocked<MailerService>;
 
-  const frontendDomain = 'http://example.com';
-  const fromEmail = 'no-reply@example.com';
+  const frontendDomain = process.env.FRONTEND_DOMAIN as string;
+  const fromEmail = process.env.MAIL_USER;
   const emailHtml = '<p>Email HTML</p>';
   const userEmail = 'test@example.com';
 
   beforeEach(async () => {
-    process.env.FRONTEND_DOMAIN = frontendDomain;
-    process.env.MAIL_USER = fromEmail;
-
     mailerServiceMock = {
       sendMail: jest.fn().mockResolvedValue('Email sent successfully'),
     } as unknown as jest.Mocked<MailerService>;

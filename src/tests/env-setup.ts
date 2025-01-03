@@ -10,5 +10,10 @@ module.exports = async () => {
 
   process.env.CONFIRMATION_USER_LIFE = '600000';
   process.env.FORGOTTEN_PASSWORD_SESSION_LIFE = '600000';
+
+  process.env.MAIL_HOST = 'TEST_HOST';
+  process.env.MAIL_PORT = 'TEST_PORT';
+  process.env.MAIL_USER = 'TEST_MAIL';
+  process.env.MAIL_PASS = 'TEST_PASSWORD';
 };
-// TODO: надо все сделать водном конфиг файле
+// TODO: надо все сделать в одном конфиг файле
