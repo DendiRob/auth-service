@@ -8,7 +8,10 @@ import USER_CONFIRMATION_ERRORS from './constants/errors';
 
 import type { User, UserConfirmation } from '@prisma/client';
 import { ServiceError } from '@src/common/utils/throw-exception';
-import { TCreateConfirmationAndSendEmail } from './types/userConfirmation.service.types';
+import {
+  TCreateConfirmationAndSendEmail,
+  TUpdateUserConfirmation,
+} from './types/userConfirmation.service.types';
 
 @Injectable()
 export class UserConfirmationService {
@@ -57,13 +60,24 @@ export class UserConfirmationService {
         tx,
       );
 
-      await tx.userConfirmation.update({
-        where: { uuid: confirmation_uuid },
-        data: { is_confirmed: true },
-      });
+      await this.updateUserConfirmation(
+        confirmation_uuid,
+        {
+          is_confirmed: true,
+        },
+        tx,
+      );
 
       return user;
     });
+  }
+
+  async updateUserConfirmation(
+    uuid: string,
+    data: TUpdateUserConfirmation,
+    prisma: TMaybeTranaction = this.prisma,
+  ) {
+    return await prisma.userConfirmation.update({ where: { uuid }, data });
   }
 
   async findConfiramtion(confirmationUuid: string) {

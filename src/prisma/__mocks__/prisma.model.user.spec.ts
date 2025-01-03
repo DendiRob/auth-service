@@ -13,7 +13,7 @@ export const userMock = {
   name: 'Test User',
   password: 'hashedpassword',
   is_deleted: false,
-  is_activated: true,
+  is_activated: false,
   Session: [],
   UserConfirmation: [],
   ForgottenPassword: [],

@@ -1,4 +1,7 @@
-import { UserConfirmation } from '@prisma/client';
+import { User, UserConfirmation } from '@prisma/client';
+import { ConfirmUserInput } from '@src/user-confirmation/inputs/confirmUser.input';
+import { userMock } from './prisma.model.user.spec';
+import { TUpdateUserConfirmation } from '@src/user-confirmation/types/userConfirmation.service.types';
 
 export const userConfirmationMock = {
   id: 1,
@@ -28,5 +31,17 @@ export class MockPrismaUserConfirmation {
         };
       },
     ),
+    update: jest.fn<Promise<UserConfirmation>, [data: TUpdateUserConfirmation]>(
+      async (data) => {
+        return { ...userConfirmationMock, ...data };
+      },
+    ),
   };
+
+  $transaction = jest.fn(async (callback: (tx: any) => Promise<any>) => {
+    const tx = {
+      userConfirmation: this.userConfirmation,
+    };
+    return callback(tx);
+  });
 }

@@ -71,4 +71,35 @@ describe('UserConfirmationService', () => {
 
     expect(createdConfirmation).toHaveBeenCalled();
   });
+
+  it('должен подтвердить аккаунт', async () => {
+    expect(userMock.is_activated).toBeFalsy();
+
+    const mockTransaction = jest.spyOn(prismaServiceMock, '$transaction');
+
+    const input = {
+      user_uuid: userMock.uuid,
+      confirmation_uuid: userConfirmationMock.uuid,
+    };
+
+    const result = await service.confirmUser(input);
+
+    expect(result.is_activated).toBeTruthy();
+
+    expect(mockTransaction).toHaveBeenCalled();
+
+    const transactionCallback = mockTransaction.mock.calls[0][0];
+    expect(transactionCallback).toBeInstanceOf(Function);
+
+    expect(prismaServiceMock.userConfirmation.update).toHaveBeenCalledWith({
+      where: { uuid: input.confirmation_uuid },
+      data: { is_confirmed: true },
+    });
+
+    expect(userServiceMock.updateUser).toHaveBeenCalledWith(
+      { uuid: input.user_uuid },
+      { is_activated: true },
+      expect.anything(),
+    );
+  });
 });
