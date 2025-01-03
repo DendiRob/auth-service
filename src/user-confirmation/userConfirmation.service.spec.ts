@@ -115,4 +115,12 @@ describe('UserConfirmationService', () => {
       expect.anything(),
     );
   });
+
+  it('Должен найти сессию подтверждения аккаунта по его uuid', async () => {
+    const confirmation = await service.findConfiramtion(
+      userConfirmationMock.uuid,
+    );
+
+    expect(confirmation).toEqual(userConfirmationMock);
+  });
 });

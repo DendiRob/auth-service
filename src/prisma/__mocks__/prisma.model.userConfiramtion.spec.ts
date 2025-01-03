@@ -46,6 +46,15 @@ export class MockPrismaUserConfirmation {
       }
       throw new Error('RecordNotFound');
     }),
+    findUnique: jest.fn<
+      Promise<UserConfirmation | null>,
+      [data: { where: { uuid: string } }]
+    >(async ({ where }) => {
+      if (where && where.uuid === userConfirmationMock.uuid) {
+        return userConfirmationMock;
+      }
+      return null;
+    }),
   };
 
   $transaction = jest.fn(async (callback: (tx: any) => Promise<any>) => {
