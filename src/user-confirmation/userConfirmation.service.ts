@@ -21,6 +21,13 @@ export class UserConfirmationService {
     private mailService: MailService,
   ) {}
 
+  isConfirmationExpired(confirmation: UserConfirmation): boolean {
+    const now = new Date();
+    const expirationTime = new Date(confirmation?.expires_at);
+
+    return now > expirationTime;
+  }
+
   async createConfirmation(
     userUuid: string,
     prisma: TMaybeTranaction = this.prisma,
@@ -120,12 +127,5 @@ export class UserConfirmationService {
       HttpStatus.BAD_REQUEST,
       USER_CONFIRMATION_ERRORS.CONFIRMATION_SENT,
     );
-  }
-
-  isConfirmationExpired(confirmation: UserConfirmation) {
-    const now = new Date();
-    const expirationTime = new Date(confirmation?.expires_at);
-
-    return now > expirationTime;
   }
 }

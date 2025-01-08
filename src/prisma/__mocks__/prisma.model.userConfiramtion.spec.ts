@@ -32,6 +32,7 @@ export class MockPrismaUserConfirmation {
         };
       },
     ),
+
     update: jest.fn<
       Promise<UserConfirmation>,
       [
@@ -46,11 +47,22 @@ export class MockPrismaUserConfirmation {
       }
       throw new Error('RecordNotFound');
     }),
+
     findUnique: jest.fn<
       Promise<UserConfirmation | null>,
       [data: { where: { uuid: string } }]
     >(async ({ where }) => {
       if (where && where.uuid === userConfirmationMock.uuid) {
+        return userConfirmationMock;
+      }
+      return null;
+    }),
+
+    findFirst: jest.fn<
+      Promise<UserConfirmation | null>,
+      [data: { where: { user_uuid: string } }]
+    >(async ({ where }): Promise<any> => {
+      if (where && where.user_uuid === userConfirmationMock.user_uuid) {
         return userConfirmationMock;
       }
       return null;
