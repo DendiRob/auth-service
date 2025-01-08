@@ -4,6 +4,8 @@ import { MockUserService } from './__mocks__/user.service.mock.spec';
 import { UserService } from './user.service';
 import { userMock } from '@src/prisma/__mocks__/prisma.model.user.spec';
 import { ServiceError } from '@src/common/utils/throw-exception';
+import { HttpStatus } from '@nestjs/common';
+import USER_ERRORS from './constants/errors';
 
 describe('UserResolver', () => {
   let resolver: UserResolver;
@@ -28,26 +30,27 @@ describe('UserResolver', () => {
   });
 
   describe('Получение юзера', () => {
-    it('Получение юзера по uuid', async () => {
-      const userUuidProps = {
+    it('Должен отдать ошибку, что юзер не найден', async () => {
+      const UniqueUserInput = {
         uuid: userMock.uuid,
       };
+      mockUserService.findActiveUserByUnique.mockResolvedValue(
+        new ServiceError(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND),
+      );
 
-      const user = await mockUserService.findUserByUnique(userUuidProps);
-
-      expect(user).toEqual(userMock);
-      expect(mockUserService.findUserByUnique).toHaveBeenCalledWith(
-        userUuidProps,
+      await expect(resolver.user(UniqueUserInput)).rejects.toThrow(
+        USER_ERRORS.USER_NOT_FOUND,
       );
     });
 
-    it('Получение ошибки, если юзер не найден', async () => {
-      const userUuidProps = {
-        uuid: 'wrong-uuid',
+    it('Должен вернуть юзера', async () => {
+      const UniqueUserInput = {
+        uuid: userMock.uuid,
       };
+      mockUserService.findActiveUserByUnique.mockResolvedValue(userMock);
+      const user = await resolver.user(UniqueUserInput);
 
-      const user = await mockUserService.findUserByUnique(userUuidProps);
-      expect(user).toBeInstanceOf(ServiceError);
+      expect(user).toEqual(userMock);
     });
   });
 });
