@@ -65,7 +65,7 @@ export class UserConfirmationService {
     return confirmation;
   }
 
-  async confirmUser(data: ConfirmUserInput) {
+  async confirmUser(data: ConfirmUserInput): Promise<User> {
     const { user_uuid, confirmation_uuid } = data;
 
     return this.prisma.$transaction(async (tx) => {

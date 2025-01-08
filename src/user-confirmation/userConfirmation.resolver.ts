@@ -3,11 +3,14 @@ import { HttpStatus } from '@nestjs/common';
 import { PublicResolver } from '@decorators/public-resolver.decorator';
 import { UserConfirmationService } from './userConfirmation.service';
 import { ConfirmUserInput } from './inputs/confirmUser.input';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '@src/user/user.service';
 import USER_CONFIRMATION_ERRORS from './constants/errors';
-import USER_ERRORS from 'src/user/constants/errors';
-import { ServiceError, throwException } from 'src/common/utils/throw-exception';
-import { GqlResponse } from 'src/common/types';
+import USER_ERRORS from '@src/user/constants/errors';
+import {
+  ServiceError,
+  throwException,
+} from '@src/common/utils/throw-exception';
+import { GqlResponse } from '@src/common/types';
 
 @Resolver()
 export class UserConfirmationResolver {

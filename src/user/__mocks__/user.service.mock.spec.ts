@@ -22,6 +22,20 @@ export class MockUserService {
     },
   );
 
+  findActiveUserByUnique = jest.fn<
+    Promise<User | ServiceError>,
+    [TUniqueUserFields]
+  >(async (uniqueField) => {
+    if (
+      (uniqueField.email === userMock.email ||
+        uniqueField.uuid === userMock.uuid) &&
+      userMock.is_activated
+    ) {
+      return userMock;
+    }
+    return new ServiceError(HttpStatus.NOT_FOUND, USER_ERRORS.USER_NOT_FOUND);
+  });
+
   updateUser = jest.fn<
     Promise<User>,
     [TUniqueUserFields, data: Partial<TUserUpdate>, tx: TMaybeTranaction]

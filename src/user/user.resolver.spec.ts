@@ -2,12 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserResolver } from './user.resolver';
 import { MockUserService } from './__mocks__/user.service.mock.spec';
 import { UserService } from './user.service';
-import { userMock } from '@src/prisma/__mocks__/prisma.mock-user.spec';
+import { userMock } from '@src/prisma/__mocks__/prisma.model.user.spec';
 import { ServiceError } from '@src/common/utils/throw-exception';
 
 describe('UserResolver', () => {
   let resolver: UserResolver;
   let mockUserService: MockUserService;
+  // TODO:переделать не тестирую резолвер(
 
   beforeEach(async () => {
     mockUserService = new MockUserService();
