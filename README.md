@@ -58,3 +58,4 @@ $ yarn run test:cov
 - Разобраться с моками в тестах
 - Интегрировать OAuth авторизацию
 - Интегрировать систему ролей и доступов (role -> [permission1, permission2])
+- Logger
