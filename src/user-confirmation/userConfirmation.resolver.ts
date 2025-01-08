@@ -11,6 +11,7 @@ import {
   throwException,
 } from '@src/common/utils/throw-exception';
 import { GqlResponse } from '@src/common/types';
+import USER_CONFIRMATION_SUCCESSES from './constants/successes';
 
 @Resolver()
 export class UserConfirmationResolver {
@@ -57,7 +58,7 @@ export class UserConfirmationResolver {
     if (!isConfirmationExpired) {
       await this.userConfirmationService.confirmUser(confirmUserInput);
 
-      return 'Аккаунт успешно подтвержден';
+      return USER_CONFIRMATION_SUCCESSES.USER_IS_CONFIRMED;
     } else {
       const result =
         await this.userConfirmationService.userIsNotActivatedProccess(

@@ -21,6 +21,7 @@ import { ServiceError, throwException } from 'src/common/utils/throw-exception';
 import SESSION_ERRORS from 'src/session/constants/errors';
 import { ChangePasswordInput } from './inputs/change-password.input';
 import { AuthenticatedRequest, GqlResponse } from 'src/common/types';
+import AUTH_SUCCESSES from './constants/successes';
 
 @Resolver()
 export class AuthResolver {
@@ -95,7 +96,7 @@ export class AuthResolver {
 
     await this.userConfirmationService.createConfirmationAndSendEmail(user);
 
-    return 'Регистрация прошла успешно! Мы отправили письмо для подтверждения аккаунта на вашу почту.';
+    return AUTH_SUCCESSES.REGISTRATED;
   }
 
   @PublicResolver()
@@ -179,7 +180,7 @@ export class AuthResolver {
       is_active: false,
     });
 
-    return 'Сессия успешно закрыта';
+    return AUTH_SUCCESSES.LOGOUT;
   }
 
   @Mutation(() => String)
@@ -214,6 +215,6 @@ export class AuthResolver {
 
     await this.authService.changePassword(userUuid, hashedNewPasssword);
 
-    return 'Пароль успешно изменен';
+    return AUTH_SUCCESSES.PASSWORD_IS_CHANGED;
   }
 }

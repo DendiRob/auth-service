@@ -14,6 +14,7 @@ import {
 } from '@decorators/user-agent-and-ip.decorator';
 import { ForgotPasswordInput } from 'src/forgotten-password/inputs/forgot-password.input';
 import { GqlResponse } from 'src/common/types';
+import FORGOTTEN_PASSWORD_SUCCESSES from './constants/successes';
 
 @Resolver()
 export class ForgottenPasswordResolver {
@@ -67,7 +68,7 @@ export class ForgottenPasswordResolver {
       hashedPasssword,
     );
 
-    return 'Пароль успешно изменён.';
+    return FORGOTTEN_PASSWORD_SUCCESSES.PASSWORD_IS_RESETED;
   }
 
   @PublicResolver()
@@ -125,6 +126,6 @@ export class ForgottenPasswordResolver {
       data,
     );
 
-    return 'Письмо для восстановления пароля отправлено вам на почту';
+    return FORGOTTEN_PASSWORD_SUCCESSES.FORGOTTEN_PASSWORD_SENT;
   }
 }
