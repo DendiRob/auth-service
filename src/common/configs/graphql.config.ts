@@ -15,4 +15,5 @@ export default {
       errors,
     };
   },
+  context: ({ req, res }) => ({ req, res }),
 } as ApolloDriverConfig;

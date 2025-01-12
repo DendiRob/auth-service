@@ -6,6 +6,7 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import { throwException } from 'src/common/utils/throw-exception';
 import { TUserRequest } from '../types';
 import SESSION_ERRORS from 'src/session/constants/errors';
+import { extractCookie } from '@src/common/utils/cookies';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
@@ -14,9 +15,10 @@ export class RefreshTokenStrategy extends PassportStrategy(
 ) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromHeader(
-        process.env.REFRESH_TOKEN_HEADER as string,
-      ),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) =>
+          extractCookie(req, process.env.REFRESH_TOKEN_NAME as string),
+      ]),
       ignoreExpiration: false,
       secretOrKey: process.env.REFRESH_SECRET,
       passReqToCallback: true,

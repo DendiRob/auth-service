@@ -7,6 +7,8 @@ import { Observable } from 'rxjs';
 import { IS_PUBLIC_KEY } from '@decorators/public-resolver.decorator';
 import { TUserRequest } from '../types';
 import { throwException } from 'src/common/utils/throw-exception';
+import { Request } from 'express';
+import { extractCookie } from '@src/common/utils/cookies';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(
@@ -15,7 +17,10 @@ export class AccessTokenStrategy extends PassportStrategy(
 ) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) =>
+          extractCookie(req, process.env.ACCESS_TOKEN_NAME as string),
+      ]),
       ignoreExpiration: false,
       secretOrKey: process.env.ACCESS_SECRET,
     });

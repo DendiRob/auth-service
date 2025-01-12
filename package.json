@@ -85,15 +85,17 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.tsx?$": "ts-jest" 
+      "^.+\\.tsx?$": "ts-jest"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!@react-email).+\\.js$" 
+      "/node_modules/(?!@react-email).+\\.js$"
     ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "setupFiles": ["<rootDir>/tests/env-setup.ts"],
+    "setupFiles": [
+      "<rootDir>/tests/env-setup.ts"
+    ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
