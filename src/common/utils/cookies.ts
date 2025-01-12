@@ -1,6 +1,6 @@
 import { CookieOptions, Request, Response } from 'express';
 
-type TSetCookie = {
+export type TSetCookie = {
   cookieName: string;
   cookieValue: string;
   cookieOptions?: CookieOptions;

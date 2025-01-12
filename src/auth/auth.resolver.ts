@@ -21,7 +21,7 @@ import SESSION_ERRORS from 'src/session/constants/errors';
 import { ChangePasswordInput } from './inputs/change-password.input';
 import { AuthenticatedRequest, GqlResponse } from 'src/common/types';
 import AUTH_SUCCESSES from './constants/successes';
-import { setCookies } from '@src/common/utils/cookies';
+import { setCookies, TSetCookie } from '@src/common/utils/cookies';
 import type { Request, Response } from 'express';
 
 @Resolver()
@@ -67,14 +67,18 @@ export class AuthResolver {
       userResult.email,
     );
 
-    const cookiesToken = [
+    const cookiesToken: TSetCookie[] = [
       {
         cookieName: process.env.ACCESS_TOKEN_NAME as string,
         cookieValue: tokens.access_token,
+        cookieOptions: { maxAge: Number(process.env.ACCESS_TOKEN_LIFE) * 1000 },
       },
       {
         cookieName: process.env.REFRESH_TOKEN_NAME as string,
         cookieValue: tokens.refresh_token,
+        cookieOptions: {
+          maxAge: Number(process.env.REFRESH_TOKEN_LIFE) * 1000,
+        },
       },
     ];
 
@@ -164,14 +168,18 @@ export class AuthResolver {
 
     await this.sessionService.createSession(sessionData);
 
-    const cookiesToken = [
+    const cookiesToken: TSetCookie[] = [
       {
         cookieName: process.env.ACCESS_TOKEN_NAME as string,
         cookieValue: tokens.access_token,
+        cookieOptions: { maxAge: Number(process.env.ACCESS_TOKEN_LIFE) * 1000 },
       },
       {
         cookieName: process.env.REFRESH_TOKEN_NAME as string,
         cookieValue: tokens.refresh_token,
+        cookieOptions: {
+          maxAge: Number(process.env.REFRESH_TOKEN_LIFE) * 1000,
+        },
       },
     ];
 
