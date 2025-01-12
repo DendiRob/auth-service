@@ -15,6 +15,9 @@ import { GqlAuthTokenGuard } from './auth/strategies';
 import { ZodValidation } from './common/pipes/zod-validation.pipe';
 import { UserConfirmationModule } from './user-confirmation/userConfirmation.module';
 import { ForgottenPasswordModule } from './forgotten-password/forgottenPassword.module';
+import { AbilityModule } from './ability/ability.module';
+import { CaslModule } from './casl/casl.module';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -26,6 +29,8 @@ import { ForgottenPasswordModule } from './forgotten-password/forgottenPassword.
     ConfigModule.forRoot(mainConfig),
     GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
     ForgottenPasswordModule,
+    AbilityModule,
+    CaslModule,
   ],
   providers: [
     {
