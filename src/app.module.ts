@@ -16,6 +16,8 @@ import { ZodValidation } from './common/pipes/zod-validation.pipe';
 import { UserConfirmationModule } from './user-confirmation/userConfirmation.module';
 import { ForgottenPasswordModule } from './forgotten-password/forgottenPassword.module';
 import { CaslModule } from './casl/casl.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { cacheManagerConfig } from './common/configs/cache-manager.config';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { CaslModule } from './casl/casl.module';
     GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
     ForgottenPasswordModule,
     CaslModule,
+    CacheModule.register(cacheManagerConfig),
   ],
   providers: [
     {
