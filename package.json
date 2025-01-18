@@ -41,7 +41,6 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cache-manager": "^6.3.2",
-    "cacheable": "^1.8.7",
     "cookie-parser": "^1.4.7",
     "cross-env": "^7.0.3",
     "dotenv-cli": "^7.4.4",
