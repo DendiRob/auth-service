@@ -6,12 +6,7 @@ export const cacheManagerConfig: CacheModuleOptions = {
   isGlobal: true,
   useFactory: async () => {
     return {
-      stores: [
-        // Redis Store
-        new Keyv({
-          store: new KeyvRedis('redis://localhost:6379'),
-        }),
-      ],
+      stores: [new KeyvRedis('redis://localhost:6379')],
     };
   },
 };
