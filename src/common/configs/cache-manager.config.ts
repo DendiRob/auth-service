@@ -1,4 +1,4 @@
-import KeyvRedis, { Keyv } from '@keyv/redis';
+import KeyvRedis from '@keyv/redis';
 import { CacheModuleOptions } from '@nestjs/cache-manager';
 
 //  TODO: объявить переменные. настроить авторизацию в бд, настроить конфиг и дефолтные значения по кешу

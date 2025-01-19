@@ -30,7 +30,7 @@ import { cacheManagerConfig } from './common/configs/cache-manager.config';
     GraphQLModule.forRoot<ApolloDriverConfig>(graphqlConfig),
     ForgottenPasswordModule,
     CaslModule,
-    CacheModule.register(cacheManagerConfig),
+    CacheModule.registerAsync(cacheManagerConfig),
   ],
   providers: [
     {
