@@ -9,13 +9,15 @@ import { TUserRequest } from '../types';
 import { throwException } from 'src/common/utils/throw-exception';
 import { Request } from 'express';
 import { extractCookie } from '@src/common/utils/cookies';
+import { User } from '@prisma/client';
+import { UserService } from '@src/user/user.service';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(
   Strategy,
   'jwt-access',
 ) {
-  constructor() {
+  constructor(private userService: UserService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) =>
@@ -27,7 +29,9 @@ export class AccessTokenStrategy extends PassportStrategy(
   }
 
   async validate(payload: TUserRequest) {
-    return payload;
+    const user = await this.userService.findUserByUnique({ uuid: payload.sub });
+
+    return { ...payload, user };
   }
 }
 
