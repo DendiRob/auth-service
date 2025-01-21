@@ -1,6 +1,6 @@
 import { Permission } from '@prisma/client';
 
-const permissions: Permission[] = [
+export const permissions: Permission[] = [
   {
     id: 1,
     action: 'read',
@@ -10,5 +10,3 @@ const permissions: Permission[] = [
     reason: null,
   },
 ];
-
-export { permissions };

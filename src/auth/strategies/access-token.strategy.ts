@@ -9,15 +9,19 @@ import { TUserRequest } from '../types';
 import { throwException } from 'src/common/utils/throw-exception';
 import { Request } from 'express';
 import { extractCookie } from '@src/common/utils/cookies';
-import { User } from '@prisma/client';
 import { UserService } from '@src/user/user.service';
+import { RolePermissionService } from '@src/role-permission/rolePermission.service';
+import { Permission } from '@prisma/client';
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(
   Strategy,
   'jwt-access',
 ) {
-  constructor(private userService: UserService) {
+  constructor(
+    private userService: UserService,
+    private rolePermissionService: RolePermissionService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) =>
@@ -30,8 +34,17 @@ export class AccessTokenStrategy extends PassportStrategy(
 
   async validate(payload: TUserRequest) {
     const user = await this.userService.findUserByUnique({ uuid: payload.sub });
+    let permissions: Permission[] = [];
+    if (user?.roleId) {
+      const rolePermissions =
+        await this.rolePermissionService.getPermissionsByRoleId(user?.roleId);
+      permissions = rolePermissions.map((i) => {
+        const conditions = i.Permission.conditions;
+        return { ...i.Permission, conditions };
+      });
+    }
 
-    return { ...payload, user };
+    return { ...payload, ...user, permissions };
   }
 }
 

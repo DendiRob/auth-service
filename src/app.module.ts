@@ -18,6 +18,8 @@ import { ForgottenPasswordModule } from './forgotten-password/forgottenPassword.
 import { CaslModule } from './casl/casl.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { cacheManagerConfig } from './common/configs/cache-manager.config';
+import { RolePermissionService } from './role-permission/rolePermission.service';
+import { RolePermissionModule } from './role-permission/rolePermission.module';
 
 @Module({
   imports: [
@@ -31,6 +33,7 @@ import { cacheManagerConfig } from './common/configs/cache-manager.config';
     ForgottenPasswordModule,
     CaslModule,
     CacheModule.registerAsync(cacheManagerConfig),
+    RolePermissionModule,
   ],
   providers: [
     {
@@ -41,6 +44,7 @@ import { cacheManagerConfig } from './common/configs/cache-manager.config';
       provide: APP_PIPE,
       useClass: ZodValidation,
     },
+    RolePermissionService,
   ],
   controllers: [],
 })
