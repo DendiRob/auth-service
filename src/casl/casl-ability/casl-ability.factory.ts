@@ -23,10 +23,14 @@ type AppAbility = PureAbility<
 >;
 
 @Injectable()
-export class CaslAbilityFactory {
+export class AbilityFactory {
   defineAbility(user: User) {
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(
       createPrismaAbility,
     );
+
+    cannot(Action.Read, 'User');
+
+    return build();
   }
 }

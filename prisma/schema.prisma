@@ -12,14 +12,51 @@ model User {
   uuid         String   @unique @default(uuid())
   created_at   DateTime @default(now())
   email        String   @unique
-  name         String?
   password     String
+  roleId       Int?
+  name         String?
   is_deleted   Boolean  @default(false)
   is_activated Boolean  @default(false)
 
   Session           Session[]
   UserConfirmation  UserConfirmation[]
   ForgottenPassword ForgottenPassword[]
+  Role              Role?               @relation(fields: [roleId], references: [id])
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  User           User[]
+  RolePermission RolePermission[]
+}
+
+enum CaslActions {
+  manage
+  read
+  create
+  update
+  delete
+}
+
+model Permission {
+  id             Int              @id @default(autoincrement())
+  action         CaslActions
+  subject        String?
+  conditions     Json
+  inverted       Boolean?         @default(false)
+  reason         String?
+  RolePermission RolePermission[]
+}
+
+model RolePermission {
+  roleId       Int
+  Role         Role       @relation(fields: [roleId], references: [id])
+  permissionId Int
+  Permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
 }
 
 model UserConfirmation {
