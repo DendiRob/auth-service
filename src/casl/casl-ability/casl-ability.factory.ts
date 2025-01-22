@@ -1,37 +1,23 @@
-import { AbilityBuilder, ExtractSubjectType, PureAbility } from '@casl/ability';
+import { AbilityBuilder, PureAbility } from '@casl/ability';
 import { createPrismaAbility, PrismaQuery, Subjects } from '@casl/prisma';
 import { Injectable } from '@nestjs/common';
-import { CaslActions, Permission, User } from '@prisma/client';
+import { Permission, User } from '@prisma/client';
 
-type AppAbility = PureAbility<
-  [
-    string,
-    TaggedSubjects<{
-      User: User;
-    }>,
-  ],
-  PrismaQuery
->;
+export type TSubjects = Subjects<{
+  User: User;
+}>;
 
-type WithTypename<T extends object, TName extends string> = T & {
-  __typename: TName;
-};
-type TaggedSubjects<T extends Record<string, Record<string, unknown>>> =
-  | keyof T
-  | { [K in keyof T]: WithTypename<T[K], K & string> }[keyof T];
+type AppAbility = PureAbility<[string, TSubjects], PrismaQuery>;
 
 @Injectable()
 export class AbilityFactory {
-  defineAbility(user: User & { permissions: Permission[] }) {
+  defineAbilityFor(user: User & { permissions: Permission[] }) {
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(
       createPrismaAbility,
     );
 
-    // can(CaslActions.read, 'User');
-    // cannot(CaslActions.read, 'User', {
-    //   uuid: 'asdsa',
-    // }).because('asdasd');
+    can('read', 'User', { uuid: user.uuid });
 
-    return build({ detectSubjectType: (object) => object.__typename });
+    return build();
   }
 }

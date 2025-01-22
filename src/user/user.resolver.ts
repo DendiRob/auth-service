@@ -1,28 +1,23 @@
-import { Args, Context, Query, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { UserDto } from './dtos/user.dto';
 import { ServiceError, throwException } from '@utils/throw-exception';
 import { GqlResponse } from '@src/common/types';
 import { TUniqueUserFields } from './types/user.service.types';
 import { UniqueUserInput } from './inputs/get-user.input';
-import { ForbiddenException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import USER_ERRORS from './constants/errors';
-import { AbilityFactory } from '@src/casl/casl-ability/casl-ability.factory';
-import { Request } from 'express';
-import { ForbiddenError } from '@casl/ability';
 import { CaslActions } from '@prisma/client';
+import { CheckAbilities } from '@src/casl/casl-ability/casl-ability.decorator';
 
 @Resolver(() => UserDto)
 export class UserResolver {
-  constructor(
-    private userService: UserService,
-    private abilityFactory: AbilityFactory,
-  ) {}
+  constructor(private userService: UserService) {}
 
+  @CheckAbilities({ action: CaslActions.read, subject: 'User' })
   @Query(() => UserDto)
   async user(
     @Args('uniqueField') uniqueField: UniqueUserInput,
-    @Context('req') req: Request,
   ): Promise<GqlResponse<UserDto>> {
     if (!uniqueField || Object.keys(uniqueField).length === 0) {
       return throwException(HttpStatus.BAD_REQUEST, USER_ERRORS.USER_NOT_FOUND);
