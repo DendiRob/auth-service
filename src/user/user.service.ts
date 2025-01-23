@@ -19,6 +19,8 @@ export class UserService {
   ) {}
 
   async findUserByUnique(uniqueField: TUniqueUserFields): Promise<User | null> {
+    // TODO: Сделать обертку для работы с редис,чтобы не боилерплейтить в таком формате
+
     const cacheField = Object.entries(uniqueField)[0].join(':');
     const cacheKey = `user:${cacheField}`;
 
