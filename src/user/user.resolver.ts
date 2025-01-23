@@ -35,7 +35,6 @@ export class UserResolver {
       {
         action: CaslActions.read,
         subject: subject('User', userResult),
-        message: 'Пользователь может получать данные только по своему аккаунту',
       },
     ]);
 
