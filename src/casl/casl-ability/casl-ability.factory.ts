@@ -3,6 +3,7 @@ import { createPrismaAbility, PrismaQuery, Subjects } from '@casl/prisma';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { CaslActions, User } from '@prisma/client';
 import { TUserRequest } from '@src/auth/types';
+import { interpolateObject } from '@src/common/utils/interpolate';
 import { throwException } from '@src/common/utils/throw-exception';
 
 export type TSubjects = Subjects<{
@@ -23,7 +24,20 @@ export class AbilityFactory {
       createPrismaAbility,
     );
 
-    can('read', 'User', { uuid: user.uuid });
+    user.permissions.forEach((permission) => {
+      const subject = permission.subject as any;
+      const conditions = (permission?.conditions as any) || undefined;
+
+      permission.inverted
+        ? cannot(permission.action, subject, conditions).because(
+            permission?.reason ?? 'Доступ закрыт',
+          )
+        : can(
+            permission.action,
+            subject,
+            interpolateObject(conditions, { user }),
+          );
+    });
 
     return build();
   }

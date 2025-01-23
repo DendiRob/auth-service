@@ -23,14 +23,6 @@ export class UserResolver {
     @Args('uniqueField') uniqueField: UniqueUserInput,
     @Context('req') req: AuthenticatedRequest,
   ): Promise<GqlResponse<UserDto>> {
-    this.abilityFactory.checkAbilities(req.user, [
-      {
-        action: CaslActions.read,
-        subject: subject('User', req.user),
-        message: 'Пользователь может получать данные только по своему аккаунту',
-      },
-    ]);
-
     if (!uniqueField || Object.keys(uniqueField).length === 0) {
       return throwException(HttpStatus.BAD_REQUEST, USER_ERRORS.USER_NOT_FOUND);
     }
@@ -38,6 +30,14 @@ export class UserResolver {
     const userResult = await this.userService.findActiveUserByUnique(
       uniqueField as TUniqueUserFields,
     );
+
+    this.abilityFactory.checkAbilities(req.user, [
+      {
+        action: CaslActions.read,
+        subject: subject('User', userResult),
+        message: 'Пользователь может получать данные только по своему аккаунту',
+      },
+    ]);
 
     if (userResult instanceof ServiceError) {
       return throwException(userResult.code, userResult.msg);

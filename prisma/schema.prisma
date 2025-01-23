@@ -43,8 +43,8 @@ enum CaslActions {
 model Permission {
   id             Int              @id @default(autoincrement())
   action         CaslActions
-  subject        String?
-  conditions     Json
+  subject        String
+  conditions     Json?
   inverted       Boolean?         @default(false)
   reason         String?
   RolePermission RolePermission[]
