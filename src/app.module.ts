@@ -20,7 +20,6 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { cacheManagerConfig } from './common/configs/cache-manager.config';
 import { RolePermissionService } from './role-permission/rolePermission.service';
 import { RolePermissionModule } from './role-permission/rolePermission.module';
-import { AbilitiesGuard } from './casl/casl-ability/abilities.guard';
 
 @Module({
   imports: [
@@ -41,10 +40,7 @@ import { AbilitiesGuard } from './casl/casl-ability/abilities.guard';
       provide: APP_GUARD,
       useClass: GqlAuthTokenGuard,
     },
-    {
-      provide: APP_GUARD,
-      useClass: AbilitiesGuard,
-    },
+
     {
       provide: APP_PIPE,
       useClass: ZodValidation,
