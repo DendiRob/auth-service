@@ -14,13 +14,12 @@ export class MailService {
 
   async sendEmail(emailOptions: ISendMailOptions) {
     // TODO: отключил отправку почты на время разработки
-    // return await this.mailerService.sendMail(emailOptions);
+    return await this.mailerService.sendMail(emailOptions);
   }
 
   async sendAuthConfirmation(data: TSendAuthConfirmation) {
     const siteDomain = process.env.FRONTEND_DOMAIN;
-
-    const confirmationLink = `${siteDomain}/${data.user_uuid}/${data.confirmationUuid}`;
+    const confirmationLink = `${siteDomain}/confirm-registration/${data.user_uuid}?confirmationUuid=${data.confirmationUuid}`;
 
     const html = await render(
       UserConfirmationEmail({

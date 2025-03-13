@@ -7,7 +7,7 @@ import { TUniqueUserFields } from './types/user.service.types';
 import { UniqueUserInput } from './inputs/get-user.input';
 import { HttpStatus } from '@nestjs/common';
 import USER_ERRORS from './constants/errors';
-import { AbilityFactory } from '@src/casl/casl-ability/casl-ability.factory';
+import { AbilityFactory } from '@src/authorization/casl/casl-ability/casl-ability.factory';
 import { subject } from '@casl/ability';
 import { CaslActions } from '@prisma/client';
 
@@ -37,6 +37,21 @@ export class UserResolver {
         subject: subject('User', userResult),
       },
     ]);
+
+    if (userResult instanceof ServiceError) {
+      return throwException(userResult.code, userResult.msg);
+    }
+
+    return userResult;
+  }
+
+  @Query(() => UserDto)
+  async me(
+    @Context('req') req: AuthenticatedRequest,
+  ): Promise<GqlResponse<UserDto>> {
+    const userResult = await this.userService.findActiveUserByUnique({
+      uuid: req.user.sub,
+    });
 
     if (userResult instanceof ServiceError) {
       return throwException(userResult.code, userResult.msg);

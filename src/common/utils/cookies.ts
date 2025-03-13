@@ -9,7 +9,7 @@ export type TSetCookie = {
 const defaultCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
   path: '/',
   maxAge: 1000 * 60 * 60 * 24,
   domain: process.env.FRONTEND_DOMAIN || undefined,

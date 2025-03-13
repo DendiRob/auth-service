@@ -2,6 +2,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// TODO: надо как-то из env к postgres собирать url, а не передавать строкой
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -14,7 +15,7 @@ model User {
   email        String   @unique
   password     String
   roleId       Int?
-  name         String?
+  username     String?  @unique
   is_deleted   Boolean  @default(false)
   is_activated Boolean  @default(false)
 
@@ -22,6 +23,7 @@ model User {
   UserConfirmation  UserConfirmation[]
   ForgottenPassword ForgottenPassword[]
   Role              Role?               @relation(fields: [roleId], references: [id])
+  UserProfile       UserProfile[]
 }
 
 model Role {
@@ -95,4 +97,17 @@ model ForgottenPassword {
   created_at DateTime @default(now())
 
   User User @relation(fields: [user_uuid], references: [uuid])
+}
+
+model UserProfile {
+  id         Int     @id @default(autoincrement())
+  user_id    Int     @unique
+  avatar     String?
+  name       String?
+  surname    String?
+  patronymic String?
+  about_me   String?
+  status     String?
+
+  User User @relation(fields: [user_id], references: [id])
 }

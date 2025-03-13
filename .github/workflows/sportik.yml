@@ -1,0 +1,28 @@
+# name: Deploy NestJS
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: self-hosted
+#     steps:
+#       - name: Проверка кода
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+
+#       - name: Копирование файлов в рабочую папку на сервере
+#         run: |
+#           rsync -av --delete . /root/backend/
+
+#       - name: Пересборка и рестарт NestJS
+#         run: |
+#           cd /root/
+#           docker compose build nestjs
+#           docker compose stop nestjs
+#           docker system prune -f
+#           docker image prune -a -f
+#           docker compose up -d nestjs

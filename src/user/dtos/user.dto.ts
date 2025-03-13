@@ -3,13 +3,16 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 @ObjectType({ description: 'user-dto' })
 export class UserDto {
   @Field((type) => ID)
+  id: number;
+
+  @Field((type) => ID)
   uuid: string;
 
   @Field((type) => String)
   email: string;
 
   @Field((type) => String, { nullable: true })
-  name: string | null;
+  username: string | null;
 
   @Field((type) => Date)
   created_at: Date;

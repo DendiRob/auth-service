@@ -10,9 +10,10 @@ function deepObjectValue(object: any, key: string) {
 }
 
 export function interpolateObject(obj: object, vars: object) {
+  // TODO: переделать, очень костыльно
   const traverse = (value: any) => {
     if (typeof value === 'string') {
-      return value.replace(/\$\{(.*?)\}/g, (_, name) => {
+      const formatedVal = value.replace(/\$\{(.*?)\}/g, (_, name) => {
         const key = name.trim() as string;
         let result: any;
 
@@ -29,11 +30,18 @@ export function interpolateObject(obj: object, vars: object) {
 
         return result;
       });
+      if (formatedVal === 'true') return true;
+      if (formatedVal === 'false') return false;
+      if (formatedVal === 'null') return null;
+      if (!isNaN(formatedVal as any)) return Number(formatedVal);
+
+      return formatedVal;
     } else if (value && typeof value === 'object') {
       return Object.fromEntries(
         Object.entries(value).map(([key, val]) => [key, traverse(val)]),
       );
     }
+
     return value;
   };
 
